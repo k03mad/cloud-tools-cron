@@ -21,7 +21,7 @@
     "oui": "11.0.74",
     "p-map": "4.0.0",
     "recron": "1.1.1",
-    "strip-ansi": "6.0.0",
+    "strip-ansi": "7.0.0",
     "tcp-ping-port": "1.0.1"
   },
   "devDependencies": {
