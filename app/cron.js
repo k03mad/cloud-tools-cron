@@ -4,9 +4,12 @@ const {Cron} = require('recron');
 const {print} = require('@k03mad/utils');
 
 const tasks = {
+    '*/10 * * * * *': {
+        pinger: require('./tasks/pinger'),
+    },
+
     '* * * * *': {
         tinkoff: require('./tasks/tinkoff'),
-        pinger: require('./tasks/pinger'),
     },
 };
 
