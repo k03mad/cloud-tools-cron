@@ -1,8 +1,8 @@
 'use strict';
 
-const {mikrotik, tg} = require('../../env');
+const {mikrotik} = require('../../env');
+const {pinger} = require('@k03mad/utils');
 const {tcpPingPort} = require('tcp-ping-port');
-const {telegram} = require('@k03mad/utils');
 
 let lastCheck;
 
@@ -15,7 +15,7 @@ module.exports = async () => {
 
         if (lastCheck !== online) {
             const status = online ? 'UP' : 'DOWN';
-            await telegram.sendMessage({text: `CLOUD PING: \`${status}\` ${option.join(':')}`}, tg.pinger);
+            await pinger.notify({text: `CLOUD PING: \`${status}\` ${option.join(':')}`});
 
             lastCheck = online;
         }
