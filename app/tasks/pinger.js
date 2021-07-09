@@ -8,7 +8,7 @@ let lastCheck;
 
 /***/
 module.exports = async () => {
-    const options = [[mikrotik.domain, 22]];
+    const options = [[mikrotik.domain, 9595]];
 
     await Promise.all(options.map(async option => {
         const {online} = await tcpPingPort(...option);
