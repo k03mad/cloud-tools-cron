@@ -2,6 +2,6 @@
 
 module.exports = {
     mikrotik: {
-        domain: process.env.CLOUD_DOMAIN,
+        domain: process.env.MIKROTIK_DOMAIN,
     },
 };
