@@ -12,9 +12,9 @@
 		"node": ">=16"
 	},
 	"dependencies": {
-		"recron": "1.1.1",
-		"@k03mad/utils": "15.0.0",
-		"as-table": "1.0.55"
+		"@k03mad/utils": "15.0.1",
+		"as-table": "1.0.55",
+		"recron": "1.1.1"
 	},
 	"devDependencies": {
 		"@k03mad/eslint-config": "8.2.2",
