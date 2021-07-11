@@ -1,44 +1,36 @@
 {
-  "name": "cloud-tools-cron",
-  "version": "1.0.0",
-  "description": "Cloud Cron",
-  "maintainers": [
-    "Kirill Molchanov <k03.mad@gmail.com"
-  ],
-  "repository": "k03mad/cloud-tools-cron",
-  "license": "MIT",
-  "private": true,
-  "engines": {
-    "node": ">=16"
-  },
-  "dependencies": {
-    "@k03mad/utils": "14.6.0",
-    "as-table": "1.0.55",
-    "chalk": "4.1.1",
-    "globby": "11.0.4",
-    "hasha": "5.2.2",
-    "i18n-iso-countries": "6.8.0",
-    "oui": "11.0.74",
-    "p-map": "4.0.0",
-    "recron": "1.1.1",
-    "strip-ansi": "6.0.0",
-    "tcp-ping-port": "1.0.1"
-  },
-  "devDependencies": {
-    "@k03mad/eslint-config": "8.2.2",
-    "eslint": "7.30.0",
-    "eslint-plugin-jsdoc": "35.4.2",
-    "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.0",
-    "eslint-plugin-sort-requires": "2.1.0",
-    "eslint-plugin-unicorn": "34.0.1",
-    "husky": "7.0.1"
-  },
-  "scripts": {
-    "lint": "eslint ./ --report-unused-disable-directives --format=codeframe --ignore-pattern='!.*'",
-    "setup": "npm i",
-    "start": "pm2 start pm2.json",
-    "task": "node runner.js",
-    "prepare": "husky install"
-  }
+	"name": "cloud-tools-cron",
+	"version": "1.0.0",
+	"description": "Cloud Cron",
+	"maintainers": [
+		"Kirill Molchanov <k03.mad@gmail.com"
+	],
+	"repository": "k03mad/cloud-tools-cron",
+	"license": "MIT",
+	"private": true,
+	"engines": {
+		"node": ">=16"
+	},
+	"dependencies": {
+		"recron": "1.1.1",
+		"@k03mad/utils": "15.0.0",
+		"as-table": "1.0.55"
+	},
+	"devDependencies": {
+		"@k03mad/eslint-config": "8.2.2",
+		"eslint": "7.30.0",
+		"eslint-plugin-jsdoc": "35.4.3",
+		"eslint-plugin-node": "11.1.0",
+		"eslint-plugin-promise": "5.1.0",
+		"eslint-plugin-sort-requires": "2.1.0",
+		"eslint-plugin-unicorn": "34.0.1",
+		"husky": "7.0.1"
+	},
+	"scripts": {
+		"lint": "eslint ./ --report-unused-disable-directives --format=codeframe --ignore-pattern='!.*'",
+		"setup": "npm i",
+		"start": "pm2 start pm2.json",
+		"task": "node runner.js",
+		"prepare": "husky install"
+	}
 }
