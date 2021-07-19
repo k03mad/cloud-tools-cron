@@ -12,6 +12,10 @@ const tasks = {
         tinkoff: require('./tasks/tinkoff'),
     },
 
+    '@every 1h': {
+        apt: require('./tasks/apt'),
+    },
+
     '0 5 * * *': {
         magnet: require('./tasks/magnet'),
     },
