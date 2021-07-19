@@ -15,6 +15,7 @@ const tasks = {
 
     '@every 5m': {
         next: require('./tasks/next'),
+        request: require('./tasks/request'),
     },
 
     '@every 1h': {
