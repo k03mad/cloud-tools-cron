@@ -20,7 +20,6 @@ module.exports = async () => {
 
     const instrumentTypes = new Set(['Stock', 'Etf']);
 
-    // const tickers = {};
     const tgMessage = [];
 
     const {portfolio} = await tinkoff.portfolio();
