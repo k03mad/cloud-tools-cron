@@ -32,7 +32,7 @@ module.exports = async () => {
         ramUsage,
         ramTotal,
         cpuLoad: Number(uptime.match(/load average: (\d\.\d\d)/)[1].replace(',', '.')),
-        diskUsage: Number(disk.match(/\/dev\/root +\d+ +(\d+)/)[1]),
+        diskUsage: Number(disk.match(/\/dev\/vda2 +\d+ +(\d+)/)[1]),
         uptime: `Uptime: ${uptime.match(/up(.+?),/)[1]}`,
         nodeCache: cacheFiles.length,
     };
