@@ -8,8 +8,13 @@ const tasks = {
         pinger: require('./tasks/pinger'),
     },
 
-    '@every 5m': {
+    '@every 1m': {
+        mikrotik: require('./tasks/mikrotik'),
         tinkoff: require('./tasks/tinkoff'),
+    },
+
+    '@every 5m': {
+        next: require('./tasks/next'),
     },
 
     '@every 1h': {
