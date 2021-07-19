@@ -9,6 +9,7 @@ const tasks = {
     },
 
     '@every 1m': {
+        cloud: require('./tasks/cloud'),
         mikrotik: require('./tasks/mikrotik'),
         tinkoff: require('./tasks/tinkoff'),
     },
