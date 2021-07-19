@@ -1,14 +1,17 @@
 'use strict';
 
 const {Cron} = require('recron');
+const {default: PQueue} = require('p-queue');
 const {print} = require('@k03mad/utils');
+
+const queue = new PQueue({concurrency: 2});
 
 const tasks = {
     '@every 10s': {
         pinger: require('./tasks/pinger'),
     },
 
-    '@every 1m': {
+    '@every 1s': {
         cloud: require('./tasks/cloud'),
         mikrotik: require('./tasks/mikrotik'),
         tinkoff: require('./tasks/tinkoff'),
@@ -31,17 +34,21 @@ const tasks = {
 const cron = new Cron();
 cron.start();
 
-for (const [key, value] of Object.entries(tasks)) {
+for (const [period, value] of Object.entries(tasks)) {
     for (const [name, func] of Object.entries(value)) {
-        cron.schedule(key, async () => {
-            try {
-                await func();
-            } catch (err) {
-                print.ex(err, {
-                    before: `${key} :: ${name}`,
-                    afterline: false,
-                });
-            }
-        }, {timezone: 'Europe/Moscow'});
+        cron.schedule(
+            period,
+            () => queue.add(async () => {
+                try {
+                    await func();
+                } catch (err) {
+                    print.ex(err, {
+                        before: `${period} :: ${name}`,
+                        afterline: false,
+                    });
+                }
+            }),
+            {timezone: 'Europe/Moscow'},
+        );
     }
 }
