@@ -10,5 +10,5 @@ module.exports = async () => {
     ]);
 
     const updates = apt.split('\n').filter(el => el.includes('Inst')).length;
-    await influx.write({meas: 'pi-updates', values: {count: `Updates: ${updates}`}});
+    await influx.write({meas: 'cloud-updates', values: {count: `Updates: ${updates}`}});
 };
