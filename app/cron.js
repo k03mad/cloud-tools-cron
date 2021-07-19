@@ -8,7 +8,7 @@ const tasks = {
         pinger: require('./tasks/pinger'),
     },
 
-    '* * * * *': {
+    '@every 5m': {
         tinkoff: require('./tasks/tinkoff'),
     },
 
