@@ -16,6 +16,7 @@ module.exports = async () => {
     const disk = await shell.run('df');
     const ram = await shell.run('free -m');
     const log = await shell.run('pm2 jlist');
+    const banned = await shell.run('sudo fail2ban-client status sshd');
     const cacheFiles = await globby(path.join(os.tmpdir(), hasha('').slice(0, 10)));
 
     JSON.parse(log).forEach(elem => {
@@ -30,6 +31,7 @@ module.exports = async () => {
         diskUsage: Number(disk.match(/\/dev\/vda2 +\d+ +(\d+)/)[1]),
         uptime: `Uptime: ${uptime.match(/up(.+?),/)[1]}`,
         nodeCache: cacheFiles.length,
+        banned: Number(banned.match(/Currently banned:\s+(\d+)/)[1]),
     };
 
     await influx.write([
@@ -37,5 +39,6 @@ module.exports = async () => {
         {meas: 'cloud-node-memory', values: memory},
         {meas: 'cloud-node-restarts', values: restarts},
         {meas: 'cloud-usage', values: usage},
+        {meas: 'cloud-banned', values: usage},
     ]);
 };
