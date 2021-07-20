@@ -42,7 +42,6 @@ module.exports = async () => {
         diskUsage: Number(disk.match(/\/dev\/vda2 +\d+ +(\d+)/)[1]),
         uptime: `Uptime: ${uptime.match(/up(.+?),/)[1]}`,
         nodeCache: cacheFiles.length,
-        banned: Number(banned.match(/Currently banned:\s+(\d+)/)[1]),
     };
 
     await influx.write([

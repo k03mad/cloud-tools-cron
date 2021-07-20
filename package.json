@@ -12,7 +12,7 @@
 		"node": ">=16"
 	},
 	"dependencies": {
-		"@k03mad/utils": "15.0.7",
+		"@k03mad/utils": "15.0.8",
 		"as-table": "1.0.55",
 		"chalk": "4.1.1",
 		"globby": "11.0.4",
@@ -25,8 +25,8 @@
 	},
 	"devDependencies": {
 		"@k03mad/eslint-config": "8.2.2",
-		"eslint": "7.30.0",
-		"eslint-plugin-jsdoc": "35.4.3",
+		"eslint": "7.31.0",
+		"eslint-plugin-jsdoc": "35.5.0",
 		"eslint-plugin-node": "11.1.0",
 		"eslint-plugin-promise": "5.1.0",
 		"eslint-plugin-sort-requires": "2.1.0",
