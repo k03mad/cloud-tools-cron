@@ -1,9 +1,4 @@
 {
   "name": "cron",
-  "script": "app/cron.js",
-
-  "exp_backoff_restart_delay": 1000,
-  "max_memory_restart": "300M",
-
-  "node_args": "--no-deprecation"
+  "script": "app/cron.js"
 }
