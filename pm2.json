@@ -1,4 +1,6 @@
 {
   "name": "cron",
-  "script": "app/cron.js"
+  "script": "app/cron.js",
+
+  "node_args": "--no-deprecation"
 }
