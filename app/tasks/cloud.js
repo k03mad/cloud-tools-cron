@@ -13,28 +13,27 @@ module.exports = async () => {
     const restarts = {};
     const banned = {};
 
-    const f2b = {
-        grafana: 'sudo fail2ban-client status grafana',
-        sshd: 'sudo fail2ban-client status sshd',
-    };
+    const f2bJails = ['grafana', 'sshd'];
 
-    const uptime = await shell.run('uptime');
-    const disk = await shell.run('df');
-    const ram = await shell.run('free -m');
-    const pm2 = await shell.run('pm2 jlist');
+    const [uptime, disk, ram, pm2, cacheFiles] = await Promise.all([
+        shell.run('uptime'),
+        shell.run('df'),
+        shell.run('free -m'),
+        shell.run('pm2 jlist'),
 
-    const cacheFiles = await globby(path.join(os.tmpdir(), hasha('').slice(0, 10)));
+        globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
+
+        Promise.all(f2bJails.map(async jail => {
+            const log = await shell.run(`sudo fail2ban-client status ${jail}`);
+            banned[jail] = Number(log.match(/Currently banned:\s+(\d+)/)[1]);
+        })),
+    ]);
 
     JSON.parse(pm2).forEach(elem => {
         memory[elem.name] = elem.monit.memory;
         cpu[elem.name] = elem.monit.cpu;
         restarts[elem.name] = elem.pm2_env.restart_time;
     });
-
-    await Promise.all(Object.entries(f2b).map(async ([key, value]) => {
-        const log = await shell.run(value);
-        banned[key] = Number(log.match(/Currently banned:\s+(\d+)/)[1]);
-    }));
 
     const usage = {
         ramUsage: Number(ram.match(/Mem: +\d+ +(\d+)/)[1]),
