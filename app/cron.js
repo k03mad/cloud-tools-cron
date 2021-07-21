@@ -11,7 +11,7 @@ const tasks = {
         pinger: require('./tasks/pinger'),
     },
 
-    '@every 1s': {
+    '@every 1m': {
         cloud: require('./tasks/cloud'),
         mikrotik: require('./tasks/mikrotik'),
         tinkoff: require('./tasks/tinkoff'),
