@@ -146,8 +146,8 @@ module.exports = async () => {
         hddTotal,
         cpu: Number(usage['cpu-load']),
         cpuFreq: Number(usage['cpu-frequency']),
-        uptime: `Uptime: ${usage.uptime}`,
-        updates: `Version: ${updates['installed-version']}/${updates['latest-version']}`,
+        uptime: usage.uptime,
+        updates: `${updates['installed-version']}/${updates['latest-version']}`,
         dnsCache: dnsCache.length,
     };
 
