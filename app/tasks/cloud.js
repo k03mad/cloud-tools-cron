@@ -15,12 +15,8 @@ module.exports = async () => {
 
     const f2bJails = ['grafana', 'sshd'];
 
-    const [uptime, disk, ram, pm2, proc, cacheFiles] = await Promise.all([
-        shell.run('uptime'),
-        shell.run('df'),
-        shell.run('free -m'),
+    const [pm2, cacheFiles] = await Promise.all([
         shell.run('pm2 jlist'),
-        shell.run('ps -e | wc -l'),
 
         globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
 
@@ -36,20 +32,11 @@ module.exports = async () => {
         restarts[elem.name] = elem.pm2_env.restart_time;
     });
 
-    const usage = {
-        ramUsage: Number(ram.match(/Mem: +\d+ +(\d+)/)[1]),
-        cpuLoad: Number(uptime.match(/load average: (\d\.\d\d)/)[1].replace(',', '.')),
-        diskUsage: Number(disk.match(/\/dev\/vda2 +\d+ +(\d+)/)[1]),
-        uptime: `Uptime: ${uptime.match(/up(.+?),/)[1]}`,
-        nodeCache: cacheFiles.length,
-        process: Number(proc),
-    };
-
     await influx.write([
         {meas: 'cloud-node-cpu', values: cpu},
         {meas: 'cloud-node-memory', values: memory},
         {meas: 'cloud-node-restarts', values: restarts},
-        {meas: 'cloud-usage', values: usage},
+        {meas: 'cloud-node-cache', values: {nodeCache: cacheFiles.length}},
         {meas: 'cloud-banned', values: banned},
     ]);
 };
