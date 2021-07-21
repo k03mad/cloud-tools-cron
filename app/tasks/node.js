@@ -26,7 +26,7 @@ module.exports = async () => {
             const {statusCode, method, domain, timing, date} = JSON.parse(content);
 
             return {
-                meas: 'node-req',
+                meas: 'node-req-responses',
                 values: {[`${statusCode} ${method} ${domain}`]: timing},
                 timestamp: date,
             };
