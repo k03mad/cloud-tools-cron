@@ -11,19 +11,10 @@ module.exports = async () => {
     const memory = {};
     const cpu = {};
     const restarts = {};
-    const banned = {};
-
-    const f2bJails = ['grafana', 'sshd'];
 
     const [pm2, cacheFiles] = await Promise.all([
         shell.run('pm2 jlist'),
-
         globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
-
-        Promise.all(f2bJails.map(async jail => {
-            const log = await shell.run(`sudo fail2ban-client status ${jail}`);
-            banned[jail] = Number(log.match(/Currently banned:\s+(\d+)/)[1]);
-        })),
     ]);
 
     JSON.parse(pm2).forEach(elem => {
@@ -33,10 +24,9 @@ module.exports = async () => {
     });
 
     await influx.write([
-        {meas: 'cloud-node-cpu', values: cpu},
-        {meas: 'cloud-node-memory', values: memory},
-        {meas: 'cloud-node-restarts', values: restarts},
-        {meas: 'cloud-node-cache', values: {nodeCache: cacheFiles.length}},
-        {meas: 'cloud-banned', values: banned},
+        {meas: 'node-pm2-cpu', values: cpu},
+        {meas: 'node-pm2-memory', values: memory},
+        {meas: 'node-pm2-restarts', values: restarts},
+        {meas: 'node-req-cache', values: {nodeCache: cacheFiles.length}},
     ]);
 };
