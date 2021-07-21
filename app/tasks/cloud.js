@@ -15,11 +15,12 @@ module.exports = async () => {
 
     const f2bJails = ['grafana', 'sshd'];
 
-    const [uptime, disk, ram, pm2, cacheFiles] = await Promise.all([
+    const [uptime, disk, ram, pm2, proc, cacheFiles] = await Promise.all([
         shell.run('uptime'),
         shell.run('df'),
         shell.run('free -m'),
         shell.run('pm2 jlist'),
+        shell.run('ps -e | wc -l'),
 
         globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
 
@@ -41,6 +42,7 @@ module.exports = async () => {
         diskUsage: Number(disk.match(/\/dev\/vda2 +\d+ +(\d+)/)[1]),
         uptime: `Uptime: ${uptime.match(/up(.+?),/)[1]}`,
         nodeCache: cacheFiles.length,
+        process: Number(proc),
     };
 
     await influx.write([
