@@ -20,20 +20,19 @@ module.exports = async () => {
     ]);
 
     const responses = await Promise.all(reqResponses.map(async file => {
-        const content = await fs.readFile(file, {encoding: 'utf-8'});
-
         try {
+            const content = await fs.readFile(file, {encoding: 'utf-8'});
             const {statusCode, method, domain, timing, date} = JSON.parse(content);
 
+            await fs.unlink(file);
             return {
                 meas: 'node-req-responses',
                 values: {[`${statusCode} ${method} ${domain}`]: timing},
                 timestamp: date,
             };
-        } catch {}
-
-        await fs.unlink(file);
-        return null;
+        } catch {
+            return null;
+        }
     }));
 
     JSON.parse(pm2).forEach(elem => {
