@@ -14,13 +14,9 @@ const tasks = {
     '@every 1m': {
         f2b: require('./tasks/f2b'),
         mikrotik: require('./tasks/mikrotik'),
+        next: require('./tasks/next'),
         node: require('./tasks/node'),
         tinkoff: require('./tasks/tinkoff'),
-    },
-
-    '@every 5m': {
-        next: require('./tasks/next'),
-        request: require('./tasks/request'),
     },
 
     '@every 1h': {
