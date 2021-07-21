@@ -9,6 +9,6 @@ module.exports = async () => {
         'sudo apt-get upgrade -u -s',
     ]);
 
-    const updates = apt.split('\n').filter(el => el.includes('Inst')).length;
-    await influx.write({meas: 'cloud-updates', values: {count: `Updates: ${updates}`}});
+    const values = {updates: apt.split('\n').filter(el => el.includes('Inst')).length};
+    await influx.write({meas: 'cloud-updates', values});
 };
