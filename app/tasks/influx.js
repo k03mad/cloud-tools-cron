@@ -10,7 +10,7 @@ module.exports = async () => {
     const size = {};
 
     await Promise.all(dbs.map(async db => {
-        const log = await shell.run(`sudo du -sb ${path + db}`);
+        const log = await shell.run(`sudo du -s ${path + db}`);
         size[db] = Number(log.match(/^\d+/)[0]);
     }));
 
