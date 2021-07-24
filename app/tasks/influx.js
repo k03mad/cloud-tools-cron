@@ -14,5 +14,5 @@ module.exports = async () => {
         size[db] = Number(log.match(/^\d+/)[0]);
     }));
 
-    await influx.write({meas: 'influx-dbs-dize', values: size});
+    await influx.write({meas: 'influx-dbs-size', values: size});
 };
