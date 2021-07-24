@@ -17,6 +17,7 @@ const tasks = {
         next: require('./tasks/next'),
         node: require('./tasks/node'),
         tinkoff: require('./tasks/tinkoff'),
+        influx: require('./tasks/influx'),
     },
 
     '@every 1h': {
