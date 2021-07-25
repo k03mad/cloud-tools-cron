@@ -18,7 +18,7 @@
 		"globby": "11.0.4",
 		"hasha": "5.2.2",
 		"i18n-iso-countries": "6.8.0",
-		"oui": "11.0.76",
+		"oui": "11.0.77",
 		"p-map": "4.0.0",
 		"p-queue": "6.6.2",
 		"recron": "1.1.1"
@@ -26,7 +26,7 @@
 	"devDependencies": {
 		"@k03mad/eslint-config": "8.2.2",
 		"eslint": "7.31.0",
-		"eslint-plugin-jsdoc": "35.5.0",
+		"eslint-plugin-jsdoc": "36.0.2",
 		"eslint-plugin-node": "11.1.0",
 		"eslint-plugin-promise": "5.1.0",
 		"eslint-plugin-sort-requires": "2.1.0",
