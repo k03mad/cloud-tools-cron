@@ -4,7 +4,7 @@ const {Cron} = require('recron');
 const {default: PQueue} = require('p-queue');
 const {print} = require('@k03mad/utils');
 
-const queue = new PQueue({concurrency: 2});
+const queue = new PQueue({concurrency: 5});
 
 const tasks = {
     '@every 10s': {
