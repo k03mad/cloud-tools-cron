@@ -7,6 +7,9 @@ const tgPreviousYield = {};
 
 /***/
 module.exports = async () => {
+    const instrumentTypes = new Set(['Stock', 'Etf']);
+    const tickerUsdToRub = 'USD000UTSTOM';
+
     const alertChangeYield = {
         Stock: {
             USD: 10,
@@ -18,97 +21,67 @@ module.exports = async () => {
         },
     };
 
-    const instrumentTypes = new Set(['Stock', 'Etf']);
-    const tickerUsdToRub = 'USD000UTSTOM';
+    const tickers = {
+        'yield': {},
+        'price-one': {},
+        'price-total': {},
+    };
 
-    let usdToRubPrice;
-
-    const tickers = {};
-    const balance = {};
-    const yieldTotal = {};
     const tgMessage = [];
 
-    const {portfolio, currencies} = await tinkoff.portfolio();
+    const {portfolio} = await tinkoff.portfolio();
+
+    const usdToRubPrice = portfolio
+        .find(elem => elem.ticker === tickerUsdToRub)
+        .averagePositionPrice
+        .value;
 
     portfolio.forEach(({
         instrumentType, ticker, lots,
         expectedYield, averagePositionPrice,
     }) => {
         if (instrumentTypes.has(instrumentType)) {
-            const currentYield = expectedYield.value;
+
+            // INFLUX
+
+            const currentYieldVal = expectedYield.value;
             const currentYieldCur = expectedYield.currency;
-            const currentValue = (lots * averagePositionPrice.value) + currentYield;
-            const currentPrice = currentValue / lots;
-            const isCurrencyRub = currentYieldCur === 'RUB';
 
-            if (!tickers[`yield-${currentYieldCur}`]) {
-                tickers[`yield-${currentYieldCur}`] = {[ticker]: {}};
-            }
+            const currentPriceTotal = (lots * averagePositionPrice.value) + currentYieldVal;
+            const currentPriceOne = currentPriceTotal / lots;
 
-            if (!tickers[`price-${currentYieldCur}`]) {
-                tickers[`price-${currentYieldCur}`] = {[ticker]: {}};
-            }
+            const isCurrencyUsd = currentYieldCur === 'USD';
 
-            if (!tickers[`price-total-${currentYieldCur}`]) {
-                tickers[`price-total-${currentYieldCur}`] = {[ticker]: {}};
-            }
+            tickers.yield[ticker] = isCurrencyUsd ? currentYieldVal * usdToRubPrice : currentYieldVal;
+            tickers['price-one'][ticker] = isCurrencyUsd ? currentPriceOne * usdToRubPrice : currentPriceOne;
+            tickers['price-total'][ticker] = isCurrencyUsd ? currentPriceTotal * usdToRubPrice : currentPriceTotal;
 
-            if (!balance[averagePositionPrice.currency]) {
-                balance[averagePositionPrice.currency] = 0;
-            }
-
-            if (!yieldTotal[averagePositionPrice.currency]) {
-                yieldTotal[averagePositionPrice.currency] = 0;
-            }
-
-            tickers[`yield-${currentYieldCur}`][ticker] = currentYield;
-            tickers[`price-${currentYieldCur}`][ticker] = currentPrice;
-            tickers[`price-total-${currentYieldCur}`][ticker] = currentValue;
-            yieldTotal[averagePositionPrice.currency] += currentYield;
-            balance[averagePositionPrice.currency] += currentValue;
+            // TELEGRAM
 
             if (!tgPreviousYield[ticker]) {
-                tgPreviousYield[ticker] = currentYield;
+                tgPreviousYield[ticker] = currentYieldVal;
             }
 
-            const previousYield = tgPreviousYield[ticker];
+            const previousYieldVal = tgPreviousYield[ticker];
 
-            if (Math.abs(previousYield - currentYield) >= alertChangeYield[instrumentType][currentYieldCur]) {
-                const arrow = previousYield > currentYield ? '▼' : '▲';
+            if (Math.abs(previousYieldVal - currentYieldVal) >= alertChangeYield[instrumentType][currentYieldCur]) {
+                const arrow = previousYieldVal > currentYieldVal ? '▼' : '▲';
+
                 tgMessage.push([
                     `${arrow} ${ticker}`,
-                    isCurrencyRub ? Math.round(currentYield) : currentYield,
-                    isCurrencyRub ? Math.round(previousYield) : previousYield,
+                    isCurrencyUsd ? currentYieldVal : Math.round(currentYieldVal),
+                    isCurrencyUsd ? previousYieldVal : Math.round(previousYieldVal),
                     `${
                         currentYieldCur.replace('RUB', 'Р').replace('USD', '$')
                     } ${
-                        isCurrencyRub ? Math.round(currentPrice) : Number(currentPrice.toFixed(2))
+                        isCurrencyUsd ? Number(currentPriceOne.toFixed(2)) : Math.round(currentPriceOne)
                     }`,
                 ]);
-                tgPreviousYield[ticker] = currentYield;
+
+                tgPreviousYield[ticker] = currentYieldVal;
             }
-        } else if (ticker === tickerUsdToRub) {
-            usdToRubPrice = averagePositionPrice.value;
         }
     });
-
-    currencies.forEach(elem => {
-        if (balance[elem.currency]) {
-            balance[elem.currency] += elem.balance;
-        }
-    });
-
-    yieldTotal.total = yieldTotal.RUB + (yieldTotal.USD * usdToRubPrice);
-    balance.total = balance.RUB + (balance.USD * usdToRubPrice);
-
-    const formatted = [
-        ...Object
-            .entries(tickers)
-            .map(([meas, values]) => ({meas: `tinkoff-${meas}`, values})),
-
-        {meas: 'tinkoff-yield-total', values: yieldTotal},
-        {meas: 'tinkoff-balance', values: balance},
-    ];
 
     if (tgMessage.length > 0) {
         const table = asTable(tgMessage.sort((a, b) => b[1] - a[1]));
@@ -117,5 +90,11 @@ module.exports = async () => {
         await tinkoff.notify({text});
     }
 
-    await influx.write(formatted);
+    const data = [
+        ...Object
+            .entries(tickers)
+            .map(([meas, values]) => ({meas: `tinkoff-${meas}`, values})),
+    ];
+
+    await influx.write(data);
 };
