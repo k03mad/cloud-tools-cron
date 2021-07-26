@@ -12,12 +12,20 @@ module.exports = async () => {
     const memory = {};
     const cpu = {};
     const restarts = {};
+    const gitSizes = {};
 
-    const [pm2, reqCache, reqResponses] = await Promise.all([
+    const [pm2, du, reqCache, reqResponses] = await Promise.all([
         shell.run('pm2 jlist'),
+        shell.run('du -s ~/git/*'),
         globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
         globby(path.join(os.tmpdir(), '_req_stats')),
     ]);
+
+    [...du.matchAll(/(\d+)\s+([\w/-]+)/g)]
+        .forEach(([, count, folder]) => {
+            const folderName = folder.split('/').pop();
+            gitSizes[folderName] = Number(count);
+        });
 
     const responses = await Promise.all(reqResponses.map(async file => {
         try {
@@ -45,6 +53,7 @@ module.exports = async () => {
         {meas: 'node-pm2-cpu', values: cpu},
         {meas: 'node-pm2-memory', values: memory},
         {meas: 'node-pm2-restarts', values: restarts},
+        {meas: 'node-dirs-size', values: gitSizes},
         {meas: 'node-req-cache', values: {nodeCache: reqCache.length}},
         ...responses.filter(Boolean),
     ]);
