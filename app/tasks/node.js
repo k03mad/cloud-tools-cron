@@ -53,7 +53,7 @@ module.exports = async () => {
         {meas: 'node-pm2-cpu', values: cpu},
         {meas: 'node-pm2-memory', values: memory},
         {meas: 'node-pm2-restarts', values: restarts},
-        {meas: 'node-dirs-size', values: gitSizes},
+        {meas: 'node-repo-size', values: gitSizes},
         {meas: 'node-req-cache', values: {nodeCache: reqCache.length}},
         ...responses.filter(Boolean),
     ]);
