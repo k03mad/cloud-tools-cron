@@ -4,15 +4,15 @@ const {shell, influx} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
-    const path = '/var/lib/influxdb/data/';
-    const dbs = ['_internal', 'mad', 'opentsdb'];
+    const values = {};
 
-    const size = {};
+    const du = await shell.run('sudo du -s /var/lib/influxdb/data/*');
 
-    await Promise.all(dbs.map(async db => {
-        const log = await shell.run(`sudo du -s ${path + db}`);
-        size[db] = Number(log.match(/^\d+/)[0]);
-    }));
+    [...du.matchAll(/(\d+)\s+([\w/-]+)/g)]
+        .forEach(([, count, folder]) => {
+            const folderName = folder.split('/').pop();
+            values[folderName] = Number(count);
+        });
 
-    await influx.write({meas: 'influx-dbs-size', values: size});
+    await influx.write({meas: 'influx-dbs-size', values});
 };
