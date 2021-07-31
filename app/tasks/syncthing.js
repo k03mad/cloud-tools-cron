@@ -1,12 +1,11 @@
 'use strict';
 
-const {syncthing, array, influx, shell} = require('@k03mad/utils');
+const {syncthing, array, influx, folder} = require('@k03mad/utils');
 
 /** @returns {Promise} */
 module.exports = async () => {
     const bytes = {};
     const addresses = {};
-    const sizes = {};
 
     const paths = [
         'config',
@@ -22,17 +21,11 @@ module.exports = async () => {
         discovery,
         {errors},
         {messages},
-        du,
+        sizes,
     ] = await Promise.all([
         ...paths.map(path => syncthing.get(path)),
-        shell.run('du -s ~/Sync/*'),
+        folder.size('~/Sync/*'),
     ]);
-
-    [...du.matchAll(/(\d+)\s+([\w/-]+)/g)]
-        .forEach(([, count, folder]) => {
-            const folderName = folder.split('/').pop();
-            sizes[folderName] = Number(count);
-        });
 
     Object.entries(connections).forEach(([device, data]) => {
         const {name} = devices.find(elem => elem.deviceID === device);
