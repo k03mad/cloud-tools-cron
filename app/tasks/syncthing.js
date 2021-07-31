@@ -34,10 +34,6 @@ module.exports = async () => {
             sizes[folderName] = Number(count);
         });
 
-    console.log(':: -----------------');
-    console.log(':: > sizes', sizes);
-    console.log(':: -----------------');
-
     Object.entries(connections).forEach(([device, data]) => {
         const {name} = devices.find(elem => elem.deviceID === device);
         bytes[`${name}_in`] = data.inBytesTotal;
