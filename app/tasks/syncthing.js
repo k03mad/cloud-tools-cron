@@ -1,11 +1,12 @@
 'use strict';
 
-const {syncthing, array, influx} = require('@k03mad/utils');
+const {syncthing, array, influx, shell} = require('@k03mad/utils');
 
 /** @returns {Promise} */
 module.exports = async () => {
     const bytes = {};
     const addresses = {};
+    const sizes = {};
 
     const paths = [
         'config',
@@ -21,7 +22,21 @@ module.exports = async () => {
         discovery,
         {errors},
         {messages},
-    ] = await Promise.all(paths.map(path => syncthing.get(path)));
+        du,
+    ] = await Promise.all([
+        ...paths.map(path => syncthing.get(path)),
+        shell.run('du -s ~/Sync/*'),
+    ]);
+
+    [...du.matchAll(/(\d+)\s+([\w/-]+)/g)]
+        .forEach(([, count, folder]) => {
+            const folderName = folder.split('/').pop();
+            sizes[folderName] = Number(count);
+        });
+
+    console.log(':: -----------------');
+    console.log(':: > sizes', sizes);
+    console.log(':: -----------------');
 
     Object.entries(connections).forEach(([device, data]) => {
         const {name} = devices.find(elem => elem.deviceID === device);
@@ -38,6 +53,7 @@ module.exports = async () => {
     await influx.write([
         {meas: 'syncthing-bytes', values: bytes},
         {meas: 'syncthing-addresses', values: addresses},
+        {meas: 'syncthing-sizes', values: sizes},
         {meas: 'syncthing-log', values: {
             errors: errors?.length || 0,
             ...array.count(messages.map(elem => `log_level_${elem.level}`)),
