@@ -16,7 +16,6 @@ const tasks = {
         mikrotik: require('./tasks/mikrotik'),
         next: require('./tasks/next'),
         node: require('./tasks/node'),
-        syncthing: require('./tasks/syncthing'),
         tinkoff: require('./tasks/tinkoff'),
         influx: require('./tasks/influx'),
     },
