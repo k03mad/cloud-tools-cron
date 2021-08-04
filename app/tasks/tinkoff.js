@@ -52,9 +52,21 @@ module.exports = async () => {
 
             const isCurrencyUsd = currentYieldCur === 'USD';
 
-            tickers.yield[ticker] = isCurrencyUsd ? currentYieldVal * usdToRubPrice : currentYieldVal;
-            tickers['price-one'][ticker] = isCurrencyUsd ? currentPriceOne * usdToRubPrice : currentPriceOne;
-            tickers['price-total'][ticker] = isCurrencyUsd ? currentPriceTotal * usdToRubPrice : currentPriceTotal;
+            const tickerYield = isCurrencyUsd ? currentYieldVal * usdToRubPrice : currentYieldVal;
+            const tickerPriceOne = isCurrencyUsd ? currentPriceOne * usdToRubPrice : currentPriceOne;
+            const tickerPriceTotal = isCurrencyUsd ? currentPriceTotal * usdToRubPrice : currentPriceTotal;
+
+            if (tickerYield) {
+                tickers.yield[ticker] = tickerYield;
+            }
+
+            if (tickerPriceOne) {
+                tickers['price-one'][ticker] = tickerPriceOne;
+            }
+
+            if (tickerPriceTotal) {
+                tickers['price-total'][ticker] = tickerPriceTotal;
+            }
 
             // TELEGRAM
 
