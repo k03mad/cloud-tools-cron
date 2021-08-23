@@ -12,7 +12,7 @@ module.exports = async () => {
 
     const alertChangeYield = {
         Stock: {
-            USD: 30,
+            USD: 50,
             RUB: 100,
         },
         Etf: {
