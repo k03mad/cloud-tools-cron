@@ -12,13 +12,13 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@k03mad/utils": "16.2.3",
+    "@k03mad/utils": "16.2.4",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
     "hasha": "5.2.2",
     "i18n-iso-countries": "6.8.0",
-    "oui": "11.0.79",
+    "oui": "11.0.81",
     "p-map": "4.0.0",
     "p-queue": "6.6.2",
     "recron": "1.1.1"
@@ -26,12 +26,12 @@
   "devDependencies": {
     "@k03mad/eslint-config": "8.2.2",
     "eslint": "7.32.0",
-    "eslint-plugin-jsdoc": "36.0.7",
+    "eslint-plugin-jsdoc": "36.0.8",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.0",
     "eslint-plugin-sort-requires": "2.1.0",
     "eslint-plugin-unicorn": "35.0.0",
-    "husky": "7.0.1"
+    "husky": "7.0.2"
   },
   "scripts": {
     "postinstall": "node patch.js",
