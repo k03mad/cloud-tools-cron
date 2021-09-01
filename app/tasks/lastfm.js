@@ -1,17 +1,16 @@
 'use strict';
 
+const env = require('../../env');
 const {influx, lastfm} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
-    const users = ['k03mad', 'Kanaplushka', '007dm'];
-
     const artistscount = {};
     const playcount = {};
     const toptracks = {};
     const topartists = {};
 
-    await Promise.all(users.map(async user => {
+    await Promise.all(env.lastfm.users.map(async user => {
         const [
             getartists,
             getinfo,
