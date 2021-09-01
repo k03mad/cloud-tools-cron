@@ -73,7 +73,7 @@ module.exports = async () => {
     await influx.write([
         {meas: 'lastfm-artists-count', values: artistscount},
         {meas: 'lastfm-playcount-total', values: playcount},
-        {meas: 'lastfm-playcount-hour', values: playcount},
+        {meas: 'lastfm-playcount-hour', values: recenttracks},
         ...Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks})),
         ...Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists})),
     ]);
