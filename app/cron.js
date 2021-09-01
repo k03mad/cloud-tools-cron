@@ -26,7 +26,7 @@ const tasks = {
         apt: require('./tasks/apt'),
     },
 
-    '0 5 * * *': {
+    '@every 6h': {
         magnet: require('./tasks/magnet'),
     },
 };
