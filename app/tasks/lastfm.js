@@ -10,7 +10,7 @@ module.exports = async () => {
     const toptracks = {};
     const topartists = {};
 
-    await Promise.all(env.lastfm.users.map(async user => {
+    await Promise.all(env.lastfm.users.split(',').map(async user => {
         const [
             getartists,
             getinfo,
