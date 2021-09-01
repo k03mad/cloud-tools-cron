@@ -47,7 +47,7 @@ module.exports = async () => {
 
         artistscount[user] = Number(getartists.artists['@attr'].total);
         playcount[user] = Number(getinfo.user.playcount);
-        recenttracks[user] = getrecenttracks.recenttracks.track.length;
+        recenttracks[user] = Number(getrecenttracks.recenttracks['@attr'].total);
 
         gettoptracks.toptracks.track.forEach(track => {
             const key = `${track.artist.name} - ${track.name}`;
@@ -70,6 +70,10 @@ module.exports = async () => {
                 topartists[user] = {[key]: count};
             }
         });
+
+        console.log(':: -------------------------------------');
+        console.log(':: > getrecenttracks', getrecenttracks);
+        console.log(':: -------------------------------------');
     }));
 
     await influx.write([
