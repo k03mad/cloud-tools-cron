@@ -70,10 +70,6 @@ module.exports = async () => {
                 topartists[user] = {[key]: count};
             }
         });
-
-        console.log(':: -------------------------------------');
-        console.log(':: > getrecenttracks', getrecenttracks);
-        console.log(':: -------------------------------------');
     }));
 
     await influx.write([
