@@ -5,6 +5,8 @@ const {influx, lastfm} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
+    const recentTracksGetSeconds = 3600;
+
     const artistscount = {};
     const playcount = {};
     const toptracks = {};
@@ -24,7 +26,7 @@ module.exports = async () => {
 
             lastfm.get({
                 method: 'user.getrecenttracks',
-                from: Math.round(Date.now() / 1000) - 3600,
+                from: Math.round(Date.now() / 1000) - recentTracksGetSeconds,
                 user,
             }),
 
@@ -45,7 +47,7 @@ module.exports = async () => {
 
         artistscount[user] = Number(getartists.artists['@attr'].total);
         playcount[user] = Number(getinfo.user.playcount);
-        recenttracks[user] = getrecenttracks.length;
+        recenttracks[user] = getrecenttracks.recenttracks.track.length;
 
         gettoptracks.toptracks.track.forEach(track => {
             const key = `${track.artist.name} - ${track.name}`;
