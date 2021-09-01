@@ -9,16 +9,24 @@ module.exports = async () => {
     const playcount = {};
     const toptracks = {};
     const topartists = {};
+    const recenttracks = {};
 
     await Promise.all(env.lastfm.users.split(',').map(async user => {
         const [
             getartists,
             getinfo,
+            getrecenttracks,
             gettoptracks,
             gettopartists,
         ] = await Promise.all([
             lastfm.get({method: 'library.getartists', user}),
             lastfm.get({method: 'user.getinfo', user}),
+
+            lastfm.get({
+                method: 'user.getrecenttracks',
+                from: Math.round(Date.now() / 1000) - 3600,
+                user,
+            }),
 
             lastfm.get({
                 method: 'user.gettoptracks',
@@ -37,6 +45,7 @@ module.exports = async () => {
 
         artistscount[user] = Number(getartists.artists['@attr'].total);
         playcount[user] = Number(getinfo.user.playcount);
+        recenttracks[user] = getrecenttracks.length;
 
         gettoptracks.toptracks.track.forEach(track => {
             const key = `${track.artist.name} - ${track.name}`;
@@ -62,10 +71,10 @@ module.exports = async () => {
     }));
 
     await influx.write([
-        {meas: 'lastfm-artistscount', values: artistscount},
-        {meas: 'lastfm-playcount', values: playcount},
+        {meas: 'lastfm-artists-count', values: artistscount},
+        {meas: 'lastfm-playcount-total', values: playcount},
+        {meas: 'lastfm-playcount-hour', values: playcount},
         ...Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks})),
         ...Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists})),
     ]);
-
 };
