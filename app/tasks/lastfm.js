@@ -45,8 +45,13 @@ module.exports = async () => {
             }),
         ]);
 
+        const playCount = Number(getinfo.user.playcount);
+
+        if (playCount > 0) {
+            playcount[user] = playCount;
+        }
+
         artistscount[user] = Number(getartists.artists['@attr'].total);
-        playcount[user] = Number(getinfo.user.playcount);
         recenttracks[user] = Number(getrecenttracks.recenttracks['@attr'].total);
 
         gettoptracks.toptracks.track.forEach(track => {
