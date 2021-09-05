@@ -12,13 +12,13 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@k03mad/utils": "16.3.0",
+    "@k03mad/utils": "16.3.1",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
     "hasha": "5.2.2",
     "i18n-iso-countries": "6.8.0",
-    "oui": "11.0.81",
+    "oui": "11.0.82",
     "p-map": "4.0.0",
     "p-queue": "6.6.2",
     "recron": "1.1.1"
