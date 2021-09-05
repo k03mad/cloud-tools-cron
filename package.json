@@ -20,7 +20,7 @@
     "i18n-iso-countries": "6.8.0",
     "oui": "11.0.82",
     "p-map": "4.0.0",
-    "p-queue": "6.6.2",
+    "p-queue": "7.1.0",
     "recron": "1.1.1"
   },
   "devDependencies": {
