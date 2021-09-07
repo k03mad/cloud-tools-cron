@@ -24,6 +24,7 @@ const tasks = {
 
     '@every 1h': {
         apt: require('./tasks/apt'),
+        myshows: require('./tasks/myshows'),
     },
 
     '@every 6h': {
