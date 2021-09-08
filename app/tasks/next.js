@@ -12,6 +12,12 @@ const mapValues = (
         .map(elem => [elem[key], elem[value]]),
 );
 
+const renameIsp = isp => isp
+    .replace('Net By Net Holding LLC', 'NBN')
+    .replace('T2 Mobile', 'Tele2')
+    .replace(/\s*(LLC|AO|OOO|JSC|ltd|Bank|Limited|Liability|Company|incorporated)\s*/g, '')
+    .trim();
+
 /***/
 module.exports = async () => {
     const concurrency = 3;
@@ -84,13 +90,7 @@ module.exports = async () => {
 
         return pMap(logs, async log => {
             const geo = await ip.lookup(log.clientIp);
-            const key = `${name} :: ${
-                geo.isp
-                    .replace('Net By Net Holding LLC', 'NBN')
-                    .replace('T2 Mobile', 'Tele2')
-                    .replace(/\s*(LLC|AO|OOO|JSC|ltd|Bank|Limited|Liability|Company)\s*/g, '')
-                    .trim()
-            }`;
+            const key = `${name} :: ${renameIsp(geo.isp)}`;
 
             return {
                 meas: 'next-req-devices-isp',
