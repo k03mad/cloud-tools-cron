@@ -7,16 +7,13 @@ const {print} = require('@k03mad/utils');
 const queue = new PQueue({concurrency: 5});
 
 const tasks = {
-    '@every 10s': {
-        pinger: require('./tasks/pinger'),
-    },
-
     '@every 1m': {
         f2b: require('./tasks/f2b'),
         lastfm: require('./tasks/lastfm'),
         mikrotik: require('./tasks/mikrotik'),
         next: require('./tasks/next'),
         node: require('./tasks/node'),
+        pinger: require('./tasks/pinger'),
         syncthing: require('./tasks/syncthing'),
         tinkoff: require('./tasks/tinkoff'),
         influx: require('./tasks/influx'),
