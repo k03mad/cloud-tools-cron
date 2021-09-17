@@ -9,6 +9,7 @@ const queue = new PQueue({concurrency: 5});
 const tasks = {
     '@every 1m': {
         f2b: require('./tasks/f2b'),
+        influx: require('./tasks/influx'),
         lastfm: require('./tasks/lastfm'),
         mikrotik: require('./tasks/mikrotik'),
         next: require('./tasks/next'),
@@ -16,7 +17,6 @@ const tasks = {
         pinger: require('./tasks/pinger'),
         syncthing: require('./tasks/syncthing'),
         tinkoff: require('./tasks/tinkoff'),
-        influx: require('./tasks/influx'),
     },
 
     '@every 1h': {
