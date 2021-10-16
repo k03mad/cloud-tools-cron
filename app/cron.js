@@ -1,10 +1,7 @@
 'use strict';
 
 const {Cron} = require('recron');
-const {default: PQueue} = require('p-queue');
 const {print} = require('@k03mad/utils');
-
-const queue = new PQueue({concurrency: 5});
 
 const tasks = {
     '@every 1m': {
@@ -34,19 +31,15 @@ cron.start();
 
 for (const [period, value] of Object.entries(tasks)) {
     for (const [name, func] of Object.entries(value)) {
-        cron.schedule(
-            period,
-            () => queue.add(async () => {
-                try {
-                    await func();
-                } catch (err) {
-                    print.ex(err, {
-                        before: `${period} :: ${name}`,
-                        afterline: false,
-                    });
-                }
-            }),
-            {timezone: 'Europe/Moscow'},
-        );
+        cron.schedule(period, async () => {
+            try {
+                await func();
+            } catch (err) {
+                print.ex(err, {
+                    before: `${period} :: ${name}`,
+                    afterline: false,
+                });
+            }
+        }, {timezone: 'Europe/Moscow'});
     }
 }

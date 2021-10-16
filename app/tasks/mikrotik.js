@@ -1,7 +1,6 @@
 'use strict';
 
 const oui = require('oui');
-const pMap = require('p-map');
 const {influx, mikrotik, object, ip, array} = require('@k03mad/utils');
 
 const fillFirewallData = (data, fill) => {
@@ -26,7 +25,6 @@ const fillFirewallData = (data, fill) => {
 module.exports = async () => {
     const SEPARATOR = ' :: ';
 
-    const lookupConcurrency = 3;
     // 1 MB
     const connectionsMinBytes = 1_048_576;
 
@@ -111,7 +109,7 @@ module.exports = async () => {
         clientsSignal[key] = Number(elem['signal-strength'].replace(/@.+/, ''));
     });
 
-    await pMap(firewallConnections, async elem => {
+    await Promise.all(firewallConnections.map(async elem => {
         const address = elem['dst-address'].replace(/:.+/, '');
 
         if (!ip.isLocal(address) && !address?.includes('255')) {
@@ -134,7 +132,7 @@ module.exports = async () => {
                 }
             }
         }
-    }, {concurrency: lookupConcurrency});
+    }));
 
     const memTotal = Number(usage['total-memory']);
     const hddTotal = Number(usage['total-hdd-space']);
