@@ -20,12 +20,15 @@ const renameIsp = isp => isp
 
 /***/
 module.exports = async () => {
-    const concurrency = 3;
+    const concurrency = 10;
 
     const topCountriesLen = 15;
     const topCountriesNameMaxLen = 15;
 
-    const lists = await next.query({path: 'privacy'});
+    const [lists, {logs}] = await Promise.all([
+        next.query({path: 'privacy'}),
+        next.query({path: 'logs'}),
+    ]);
 
     const [
         topCountries,
@@ -66,6 +69,18 @@ module.exports = async () => {
         list.id = lists.blocklists.find(elem => elem.name === list.name)?.id;
     });
 
+    const listsStatus = {};
+
+    logs.forEach(elem => {
+        elem.lists.forEach(list => {
+            if (listsStatus[list]) {
+                listsStatus[list] += 1;
+            } else {
+                listsStatus[list] = 1;
+            }
+        });
+    });
+
     const topCountriesToValues = Object.fromEntries(
         Object
             .entries(topCountries)
@@ -83,12 +98,12 @@ module.exports = async () => {
     );
 
     const devicesRequestsIsp = await pMap(topDevices, async ({id, name}, i) => {
-        const {logs} = await next.query({
+        const {logs: deviceLogs} = await next.query({
             path: 'logs',
             searchParams: {device: id, simple: 1, lng: 'en'},
         });
 
-        return pMap(logs, async log => {
+        return pMap(deviceLogs, async log => {
             const geo = await ip.lookup(log.clientIp);
             const key = `${name} :: ${renameIsp(geo.isp)}`;
 
@@ -105,6 +120,7 @@ module.exports = async () => {
         {meas: 'next-dnssec', values: dnssec},
         {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
         {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+        {meas: 'next-logs-lists', values: listsStatus},
         {meas: 'next-secure', values: secure},
         {meas: 'next-top-countries', values: topCountriesToValues},
         {meas: 'next-top-devices', values: mapValues(topDevices)},
