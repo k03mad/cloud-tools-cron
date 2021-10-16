@@ -20,7 +20,7 @@ const renameIsp = isp => isp
 
 /***/
 module.exports = async () => {
-    const concurrency = 10;
+    const concurrency = 3;
 
     const topCountriesLen = 15;
     const topCountriesNameMaxLen = 15;
