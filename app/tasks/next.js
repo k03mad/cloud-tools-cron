@@ -1,7 +1,6 @@
 'use strict';
 
 const converter = require('i18n-iso-countries');
-const pMap = require('p-map');
 const {influx, next, ip} = require('@k03mad/utils');
 
 const mapValues = (
@@ -20,8 +19,6 @@ const renameIsp = isp => isp
 
 /***/
 module.exports = async () => {
-    const concurrency = 3;
-
     const topCountriesLen = 15;
     const topCountriesNameMaxLen = 15;
 
@@ -43,7 +40,7 @@ module.exports = async () => {
         counters,
         queriesPerDay,
         ips,
-    ] = await pMap([
+    ] = await Promise.all([
         'traffic_destination_countries',
         'gafam',
         'dnssec',
@@ -56,10 +53,10 @@ module.exports = async () => {
         'counters',
         'queries_chart',
         'top_client_ips',
-    ], req => next.query({
+    ].map(req => next.query({
         path: `analytics/${req}`,
         searchParams: {from: '-30d', timezoneOffset: '-180', selector: true},
-    }), {concurrency});
+    })));
 
     topDomainsBlocked.forEach(elem => {
         elem.queries = -elem.queries;
@@ -97,13 +94,13 @@ module.exports = async () => {
             .slice(0, topCountriesLen),
     );
 
-    const devicesRequestsIsp = await pMap(topDevices, async ({id, name}, i) => {
+    const devicesRequestsIsp = await Promise.all(topDevices.map(async ({id, name}, i) => {
         const {logs: deviceLogs} = await next.query({
             path: 'logs',
             searchParams: {device: id, simple: 1, lng: 'en'},
         });
 
-        return pMap(deviceLogs, async log => {
+        return Promise.all(deviceLogs.map(async log => {
             const geo = await ip.lookup(log.clientIp);
             const key = `${name} :: ${renameIsp(geo.isp)}`;
 
@@ -112,8 +109,8 @@ module.exports = async () => {
                 values: {[key]: i + 1},
                 timestamp: `${log.timestamp}000000`,
             };
-        }, {concurrency});
-    }, {concurrency});
+        }));
+    }));
 
     await influx.write([
         {meas: 'next-counters', values: counters},
