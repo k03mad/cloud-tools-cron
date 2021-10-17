@@ -12,7 +12,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "@k03mad/utils": "19.0.0",
+    "@k03mad/utils": "19.2.1",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
