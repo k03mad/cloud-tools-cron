@@ -28,15 +28,21 @@ module.exports = async () => {
     ]);
 
     Object.entries(connections).forEach(([device, data]) => {
-        const {name} = devices.find(elem => elem.deviceID === device);
-        bytes[`${name}_in`] = data.inBytesTotal;
-        bytes[`${name}_out`] = data.outBytesTotal;
+        const found = devices.find(elem => elem.deviceID === device);
+
+        if (found?.name) {
+            bytes[`${found.name}_in`] = data.inBytesTotal;
+            bytes[`${found.name}_out`] = data.outBytesTotal;
+        }
     });
 
     Object.entries(discovery).forEach(([device, data]) => {
-        const {name} = devices.find(elem => elem.deviceID === device);
-        const protocols = data.addresses.map(elem => `${name}_${elem.split(':')[0]}`);
-        Object.assign(addresses, array.count(protocols));
+        const found = devices.find(elem => elem.deviceID === device);
+
+        if (found?.name) {
+            const protocols = data.addresses.map(elem => `${found.name}_${elem.split(':')[0]}`);
+            Object.assign(addresses, array.count(protocols));
+        }
     });
 
     await influx.write([
