@@ -1,7 +1,7 @@
 'use strict';
 
 const converter = require('i18n-iso-countries');
-const {influx, next, ip} = require('@k03mad/utils');
+const {influx, next, ip, cloud} = require('@k03mad/utils');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -21,6 +21,7 @@ const renameIsp = isp => isp
 module.exports = async () => {
     const topCountriesLen = 15;
     const topCountriesNameMaxLen = 15;
+    const aiList = 'AI-Driven';
 
     const [lists, {logs}] = await Promise.all([
         next.query({path: 'privacy'}),
@@ -68,8 +69,14 @@ module.exports = async () => {
 
     const listsStatus = {};
 
+    const notify = [];
+
     logs.forEach(elem => {
         elem.lists.forEach(list => {
+            if (list.includes(aiList)) {
+                notify.push(elem.name);
+            }
+
             if (listsStatus[list]) {
                 listsStatus[list] += 1;
             } else {
@@ -111,6 +118,13 @@ module.exports = async () => {
             };
         }));
     }));
+
+    if (notify.length > 0) {
+        await cloud.notify({
+            text: notify.map(elem => `${aiList} blocked: ${elem}`).join('\n'),
+            parse_mode: '',
+        });
+    }
 
     await influx.write([
         {meas: 'next-counters', values: counters},

@@ -12,7 +12,7 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/utils": "19.2.2",
+    "@k03mad/utils": "19.2.3",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
@@ -27,10 +27,10 @@
     "eslint": "7.32.0",
     "eslint-plugin-jsdoc": "36.1.1",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.0",
+    "eslint-plugin-promise": "5.1.1",
     "eslint-plugin-sort-requires": "2.1.0",
     "eslint-plugin-unicorn": "37.0.1",
-    "husky": "7.0.2"
+    "husky": "7.0.4"
   },
   "scripts": {
     "postinstall": "node patch.js",
