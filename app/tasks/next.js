@@ -17,16 +17,24 @@ const renameIsp = isp => isp
     .replace(/\s*(LLC|AO|OOO|JSC|ltd|Bank|Limited|Liability|Company|incorporated)\s*/g, '')
     .trim();
 
+const topCountriesLen = 15;
+const topCountriesNameMaxLen = 15;
+
+const notifyLists = new Set([
+    'Affiliate & Tracking Links',
+    'AI-Driven Threat Detection',
+    'Allowlist',
+    'DNS Rebinding',
+    'Threat Intelligence Feeds',
+]);
+
 /***/
 module.exports = async () => {
-    const topCountriesLen = 15;
-    const topCountriesNameMaxLen = 15;
-    const aiList = 'AI-Driven';
-
     const [lists, {logs}] = await Promise.all([
         next.query({path: 'privacy'}),
         next.query({path: 'logs'}),
     ]);
+    console.log('—————————— \n logs', logs);
 
     const [
         topCountries,
@@ -73,8 +81,8 @@ module.exports = async () => {
 
     logs.forEach(elem => {
         elem.lists.forEach(list => {
-            if (list.includes(aiList)) {
-                notify.push(elem.name);
+            if (notifyLists.has(list)) {
+                notify.push([list, elem.deviceName, elem.name].join(' :: '));
             }
 
             if (listsStatus[list]) {
@@ -120,10 +128,7 @@ module.exports = async () => {
     }));
 
     if (notify.length > 0) {
-        await cloud.notify({
-            text: notify.map(elem => `${aiList} blocked: ${elem}`).join('\n'),
-            parse_mode: '',
-        });
+        await cloud.notify({text: notify.join('\n'), parse_mode: ''});
     }
 
     await influx.write([
