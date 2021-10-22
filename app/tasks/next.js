@@ -21,9 +21,7 @@ const topCountriesLen = 15;
 const topCountriesNameMaxLen = 15;
 
 const notifyLists = new Set([
-    'Affiliate & Tracking Links',
     'AI-Driven Threat Detection',
-    'Allowlist',
     'DNS Rebinding',
     'Threat Intelligence Feeds',
 ]);
@@ -34,7 +32,6 @@ module.exports = async () => {
         next.query({path: 'privacy'}),
         next.query({path: 'logs'}),
     ]);
-    console.log('—————————— \n logs', logs);
 
     const [
         topCountries,
@@ -82,7 +79,7 @@ module.exports = async () => {
     logs.forEach(elem => {
         elem.lists.forEach(list => {
             if (notifyLists.has(list)) {
-                notify.push([list, elem.deviceName, elem.name].join(' :: '));
+                notify.push([list, elem.deviceName, elem.name]. join(' '));
             }
 
             if (listsStatus[list]) {
