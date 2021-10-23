@@ -22,7 +22,6 @@ const topCountriesNameMaxLen = 15;
 
 const notifyLists = new Set([
     'AI-Driven Threat Detection',
-    'DNS Rebinding',
     'Threat Intelligence Feeds',
 ]);
 
