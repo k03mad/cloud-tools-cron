@@ -42,7 +42,7 @@ for (const [period, value] of Object.entries(tasks)) {
                     await func();
 
                     const duration = Date.now() - time;
-                    await influx.write({meas: 'cloud-crons-time', values: {name: duration}});
+                    await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
                 } catch (err) {
                     print.ex(err, {
                         before: `${period} :: ${name}`,
