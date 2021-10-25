@@ -54,7 +54,8 @@ module.exports = async () => {
         writeArr.push([
             {meas: 'node-req-length', values: {count: responses.length},
             ...responses,
-    ]);
+        ]);
+    }
 
     await influx.write(dataArr);
 };
