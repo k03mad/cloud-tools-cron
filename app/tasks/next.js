@@ -78,7 +78,7 @@ module.exports = async () => {
     logs.forEach(elem => {
         elem.lists.forEach(list => {
             if (notifyLists.has(list)) {
-                notify.push([list, elem.deviceName, elem.name]. join(' '));
+                notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
             }
 
             if (listsStatus[list]) {

@@ -2,7 +2,7 @@
 
 const {Cron} = require('recron');
 const {default: PQueue} = require('p-queue');
-const {print} = require('@k03mad/utils');
+const {print, influx} = require('@k03mad/utils');
 
 const queue = new PQueue({concurrency: 5});
 
@@ -38,7 +38,11 @@ for (const [period, value] of Object.entries(tasks)) {
             period,
             () => queue.add(async () => {
                 try {
+                    const time = Date.now();
                     await func();
+
+                    const duration = Date.now() - time;
+                    await influx.write({meas: 'cloud-crons-time', values: {name: duration}});
                 } catch (err) {
                     print.ex(err, {
                         before: `${period} :: ${name}`,
