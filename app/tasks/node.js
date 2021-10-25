@@ -20,7 +20,7 @@ module.exports = async () => {
         globby(path.join(os.tmpdir(), '_req_stats')),
     ]);
 
-    const responses = await Promise.all(reqResponses.map(async file => {
+    const responses = (await Promise.all(reqResponses.map(async file => {
         try {
             const content = await fs.readFile(file, {encoding: 'utf-8'});
             const {statusCode, method, domain, timing, date} = JSON.parse(content);
@@ -34,7 +34,7 @@ module.exports = async () => {
         } catch {
             return null;
         }
-    }));
+    }))).filter(Boolean);
 
     JSON.parse(pm2).forEach(elem => {
         memory[elem.name] = elem.monit.memory;
@@ -42,12 +42,19 @@ module.exports = async () => {
         restarts[elem.name] = elem.pm2_env.restart_time;
     });
 
-    await influx.write([
+    const dataArr = [
         {meas: 'node-pm2-cpu', values: cpu},
         {meas: 'node-pm2-memory', values: memory},
         {meas: 'node-pm2-restarts', values: restarts},
         {meas: 'node-repo-size', values: gitSizes},
         {meas: 'node-req-cache', values: {nodeCache: reqCache.length}},
-        ...responses.filter(Boolean),
+    ];
+
+    if (responses.length > 0) {
+        writeArr.push([
+            {meas: 'node-req-length', values: {count: responses.length},
+            ...responses,
     ]);
+
+    await influx.write(dataArr);
 };
