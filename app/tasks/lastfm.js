@@ -77,11 +77,16 @@ module.exports = async () => {
         });
     }));
 
-    await influx.write([
-        {meas: 'lastfm-artists-count', values: artistscount},
-        {meas: 'lastfm-playcount-total', values: playcount},
-        {meas: 'lastfm-playcount-hour', values: recenttracks},
-        ...Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks})),
-        ...Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists})),
-    ]);
+    // lastfm api bug: incorrect data with very large numbers
+    if (!Object.values(recenttracks).some(elem => elem > 100)) {
+
+        await influx.write([
+            {meas: 'lastfm-artists-count', values: artistscount},
+            {meas: 'lastfm-playcount-total', values: playcount},
+            {meas: 'lastfm-playcount-hour', values: recenttracks},
+            ...Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks})),
+            ...Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists})),
+        ]);
+
+    }
 };
