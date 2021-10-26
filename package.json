@@ -12,20 +12,20 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/utils": "19.2.5",
+    "@k03mad/utils": "19.2.7",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
     "hasha": "5.2.2",
     "i18n-iso-countries": "6.8.0",
-    "oui": "11.0.88",
+    "oui": "11.0.89",
     "p-queue": "6.6.2",
     "recron": "1.1.1"
   },
   "devDependencies": {
     "@k03mad/eslint-config": "8.2.2",
     "eslint": "7.32.0",
-    "eslint-plugin-jsdoc": "36.1.1",
+    "eslint-plugin-jsdoc": "37.0.3",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.1",
     "eslint-plugin-sort-requires": "2.1.0",
