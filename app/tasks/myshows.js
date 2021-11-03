@@ -4,6 +4,8 @@ const {myshows, influx} = require('@k03mad/utils');
 
 /** @returns {Promise} */
 module.exports = async () => {
+    await myshows.auth();
+
     const [episodes, {stats}] = await Promise.all([
         myshows.watch({onlyAired: true}),
         myshows.get({method: 'profile.Get'}),

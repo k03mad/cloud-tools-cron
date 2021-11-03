@@ -27,10 +27,7 @@ const notifyLists = new Set([
 
 /***/
 module.exports = async () => {
-    const [lists, {logs}] = await Promise.all([
-        next.query({path: 'privacy'}),
-        next.query({path: 'logs'}),
-    ]);
+    await next.auth();
 
     const [
         topCountries,
@@ -45,23 +42,30 @@ module.exports = async () => {
         counters,
         queriesPerDay,
         ips,
+        lists,
+        {logs},
     ] = await Promise.all([
-        'traffic_destination_countries',
-        'gafam',
-        'dnssec',
-        'secure_dns',
-        'top_root_domains',
-        'top_devices',
-        'top_lists',
-        'top_domains/blocked',
-        'top_domains/resolved',
-        'counters',
-        'queries_chart',
-        'top_client_ips',
-    ].map(req => next.query({
-        path: `analytics/${req}`,
-        searchParams: {from: '-30d', timezoneOffset: '-180', selector: true},
-    })));
+        ...[
+            'traffic_destination_countries',
+            'gafam',
+            'dnssec',
+            'secure_dns',
+            'top_root_domains',
+            'top_devices',
+            'top_lists',
+            'top_domains/blocked',
+            'top_domains/resolved',
+            'counters',
+            'queries_chart',
+            'top_client_ips',
+        ].map(req => next.query({
+            path: `analytics/${req}`,
+            searchParams: {from: '-30d', timezoneOffset: '-180', selector: true},
+        })),
+
+        next.query({path: 'privacy'}),
+        next.query({path: 'logs'}),
+    ]);
 
     topDomainsBlocked.forEach(elem => {
         elem.queries = -elem.queries;
