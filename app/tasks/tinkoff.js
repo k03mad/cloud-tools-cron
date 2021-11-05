@@ -13,12 +13,13 @@ module.exports = async () => {
     const alertChangeYield = {
         Stock: {
             USD: 10,
-            RUB: 100,
+            RUB: 500,
         },
         Etf: {
             USD: 10,
-            RUB: 100,
+            RUB: 500,
         },
+        CLOV: 100,
     };
 
     const tickers = {
@@ -75,8 +76,9 @@ module.exports = async () => {
             }
 
             const previousYieldVal = tgPreviousYield[ticker];
+            const alertThreshold = alertChangeYield[ticker] || alertChangeYield[instrumentType][currentYieldCur];
 
-            if (Math.abs(previousYieldVal - currentYieldVal) >= alertChangeYield[instrumentType][currentYieldCur]) {
+            if (Math.abs(previousYieldVal - currentYieldVal) >= alertThreshold) {
                 const arrow = previousYieldVal > currentYieldVal ? '▼' : '▲';
 
                 tgMessage.push([
