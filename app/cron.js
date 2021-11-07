@@ -1,24 +1,12 @@
 'use strict';
 
+const runner = require('./lib/runner');
 const {Cron} = require('recron');
-const {default: PQueue} = require('p-queue');
-const {print, influx} = require('@k03mad/utils');
 
-const queue = new PQueue({concurrency: 5});
+const cron = new Cron();
+cron.start();
 
 const tasks = {
-    '@every 1m': {
-        f2b: require('./tasks/f2b'),
-        influx: require('./tasks/influx'),
-        lastfm: require('./tasks/lastfm'),
-        mikrotik: require('./tasks/mikrotik'),
-        next: require('./tasks/next'),
-        node: require('./tasks/node'),
-        pinger: require('./tasks/pinger'),
-        syncthing: require('./tasks/syncthing'),
-        tinkoff: require('./tasks/tinkoff'),
-    },
-
     '@every 1h': {
         apt: require('./tasks/apt'),
         myshows: require('./tasks/myshows'),
@@ -29,27 +17,30 @@ const tasks = {
     },
 };
 
-const cron = new Cron();
-cron.start();
+const everyMinuteTasks = {
+    f2b: require('./tasks/f2b'),
+    influx: require('./tasks/influx'),
+    lastfm: require('./tasks/lastfm'),
+    mikrotik: require('./tasks/mikrotik'),
+    next: require('./tasks/next'),
+    node: require('./tasks/node'),
+    pinger: require('./tasks/pinger'),
+    syncthing: require('./tasks/syncthing'),
+    tinkoff: require('./tasks/tinkoff'),
+};
+
+const everyMinuteTasksArr = Object.entries(everyMinuteTasks);
+const secondsForTask = Math.floor(59 / everyMinuteTasksArr.length);
+
+everyMinuteTasksArr.forEach(([key, value], i) => {
+    tasks[`${i * secondsForTask} */1 * * * *`] = {[key]: value};
+});
 
 for (const [period, value] of Object.entries(tasks)) {
-    for (const [name, func] of Object.entries(value)) {
+    for (const [name, task] of Object.entries(value)) {
         cron.schedule(
             period,
-            () => queue.add(async () => {
-                try {
-                    const time = Date.now();
-                    await func();
-
-                    const duration = Date.now() - time;
-                    await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
-                } catch (err) {
-                    print.ex(err, {
-                        before: `${period} :: ${name}`,
-                        afterline: false,
-                    });
-                }
-            }),
+            () => runner({task, name, period}),
             {timezone: 'Europe/Moscow'},
         );
     }

@@ -19,7 +19,6 @@
     "hasha": "5.2.2",
     "i18n-iso-countries": "6.8.0",
     "oui": "11.0.90",
-    "p-queue": "6.6.2",
     "recron": "1.1.1"
   },
   "devDependencies": {
@@ -37,7 +36,7 @@
     "lint": "eslint ./ --report-unused-disable-directives --format=codeframe --ignore-pattern='!.*'",
     "setup": "npm i",
     "start": "pm2 start pm2.json",
-    "task": "node runner.js",
+    "task": "node run-one.js",
     "prepare": "husky install"
   }
 }
