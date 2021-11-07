@@ -28,7 +28,7 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.1",
     "eslint-plugin-sort-requires": "2.1.0",
-    "eslint-plugin-unicorn": "37.0.1",
+    "eslint-plugin-unicorn": "38.0.0",
     "husky": "7.0.4"
   },
   "scripts": {
