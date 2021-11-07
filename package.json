@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@k03mad/eslint-config": "8.2.2",
-    "eslint": "7.32.0",
+    "eslint": "8.2.0",
     "eslint-plugin-jsdoc": "37.0.3",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.1.1",
@@ -33,7 +33,7 @@
   },
   "scripts": {
     "postinstall": "node patch.js",
-    "lint": "eslint ./ --report-unused-disable-directives --format=codeframe --ignore-pattern='!.*'",
+    "lint": "eslint ./ --report-unused-disable-directives --ignore-pattern='!.*'",
     "setup": "npm i",
     "start": "pm2 start pm2.json",
     "task": "node run-one.js",
