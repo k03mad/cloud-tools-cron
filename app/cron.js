@@ -18,15 +18,15 @@ const tasks = {
 };
 
 const everyMinuteTasks = {
-    f2b: require('./tasks/f2b'),
-    influx: require('./tasks/influx'),
-    lastfm: require('./tasks/lastfm'),
-    mikrotik: require('./tasks/mikrotik'),
+    // f2b: require('./tasks/f2b'),
+    // influx: require('./tasks/influx'),
+    // lastfm: require('./tasks/lastfm'),
+    // mikrotik: require('./tasks/mikrotik'),
     next: require('./tasks/next'),
-    node: require('./tasks/node'),
-    pinger: require('./tasks/pinger'),
-    syncthing: require('./tasks/syncthing'),
-    tinkoff: require('./tasks/tinkoff'),
+    // node: require('./tasks/node'),
+    // pinger: require('./tasks/pinger'),
+    // syncthing: require('./tasks/syncthing'),
+    // tinkoff: require('./tasks/tinkoff'),
 };
 
 const everyMinuteTasksArr = Object.entries(everyMinuteTasks);

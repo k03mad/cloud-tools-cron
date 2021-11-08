@@ -2,6 +2,7 @@
 
 const converter = require('i18n-iso-countries');
 const {influx, next, ip, cloud} = require('@k03mad/utils');
+const {promises: fs} = require('fs');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -25,8 +26,22 @@ const notifyLists = new Set([
     'Threat Intelligence Feeds',
 ]);
 
+const timestampFile = '.timestamp';
+
 /***/
 module.exports = async () => {
+    let timestamp;
+
+    try {
+        timestamp = await fs.readFile(timestampFile, {encoding: 'utf-8'});
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            timestamp = '1';
+        } else {
+            throw err;
+        }
+    }
+
     await next.auth();
 
     const [
@@ -79,19 +94,27 @@ module.exports = async () => {
 
     const notify = [];
 
-    logs.forEach(elem => {
-        elem.lists.forEach(list => {
-            if (notifyLists.has(list)) {
-                notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
-            }
+    for (const [i, elem] of logs.reverse().entries()) {
+        for (const list of elem.lists) {
+            if (elem.timestamp > Number(timestamp.trim())) {
+                if (notifyLists.has(list)) {
+                    notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
+                }
 
-            if (listsStatus[list]) {
-                listsStatus[list] += 1;
+                if (listsStatus[list]) {
+                    listsStatus[list] += 1;
+                } else {
+                    listsStatus[list] = 1;
+                }
             } else {
-                listsStatus[list] = 1;
+                break;
             }
-        });
-    });
+        }
+
+        if (i === logs.length - 1) {
+            await fs.writeFile(timestampFile, String(elem.timestamp));
+        }
+    }
 
     const topCountriesToValues = Object.fromEntries(
         Object
