@@ -95,8 +95,8 @@ module.exports = async () => {
     const notify = [];
 
     for (const [i, elem] of logs.reverse().entries()) {
-        for (const list of elem.lists) {
-            if (elem.timestamp > Number(timestamp.trim())) {
+        if (elem.timestamp > Number(timestamp.trim())) {
+            for (const list of elem.lists) {
                 if (notifyLists.has(list)) {
                     notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
                 }
@@ -106,8 +106,6 @@ module.exports = async () => {
                 } else {
                     listsStatus[list] = 1;
                 }
-            } else {
-                break;
             }
         }
 
