@@ -2,7 +2,6 @@
 
 const converter = require('i18n-iso-countries');
 const {influx, next, ip, cloud} = require('@k03mad/utils');
-const {promises: fs} = require('fs');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -26,22 +25,10 @@ const notifyLists = new Set([
     'Threat Intelligence Feeds',
 ]);
 
-const timestampFile = '.timestamp';
+let lastTimestamp = 0;
 
 /***/
 module.exports = async () => {
-    let timestamp;
-
-    try {
-        timestamp = await fs.readFile(timestampFile, {encoding: 'utf-8'});
-    } catch (err) {
-        if (err.code === 'ENOENT') {
-            timestamp = '1';
-        } else {
-            throw err;
-        }
-    }
-
     await next.auth();
 
     const [
@@ -94,8 +81,8 @@ module.exports = async () => {
 
     const notify = [];
 
-    for (const [i, elem] of logs.reverse().entries()) {
-        if (elem.timestamp > Number(timestamp.trim())) {
+    for (const elem of logs.reverse()) {
+        if (elem.timestamp > lastTimestamp) {
             for (const list of elem.lists) {
                 if (notifyLists.has(list)) {
                     notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
@@ -107,10 +94,8 @@ module.exports = async () => {
                     listsStatus[list] = 1;
                 }
             }
-        }
 
-        if (i === logs.length - 1) {
-            await fs.writeFile(timestampFile, String(elem.timestamp));
+            ({lastTimestamp} = elem);
         }
     }
 
