@@ -19,7 +19,7 @@ module.exports = async () => {
             USD: 10,
             RUB: 500,
         },
-        CLOV: 100,
+        CLOV: 200,
     };
 
     const tickers = {
