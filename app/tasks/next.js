@@ -95,7 +95,7 @@ module.exports = async () => {
                 }
             }
 
-            ({lastTimestamp} = elem);
+            lastTimestamp = elem.timestamp;
         }
     }
 
