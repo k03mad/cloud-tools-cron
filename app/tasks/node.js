@@ -27,7 +27,7 @@ module.exports = async () => {
 
             await fs.unlink(file);
 
-            if ([1, 2, 3].some(elem => String(statusCode).startsWith(String(elem)))) {
+            if (Number([...String(statusCode)].shift()) >= 4) {
                 return {
                     meas: 'node-req-responses-ok',
                     values: {[`${statusCode} ${method} ${domain}`]: timing},
