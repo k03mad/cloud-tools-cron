@@ -26,11 +26,21 @@ module.exports = async () => {
             const {statusCode, method, domain, timing, date} = JSON.parse(content);
 
             await fs.unlink(file);
+
+            if ([1, 2, 3].some(elem => String(statusCode).startsWith(String(elem)))) {
+                return {
+                    meas: 'node-req-responses-ok',
+                    values: {[`${statusCode} ${method} ${domain}`]: timing},
+                    timestamp: date,
+                };
+            }
+
             return {
-                meas: 'node-req-responses',
+                meas: 'node-req-responses-fail',
                 values: {[`${statusCode} ${method} ${domain}`]: timing},
                 timestamp: date,
             };
+
         } catch {
             return null;
         }
