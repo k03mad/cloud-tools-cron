@@ -27,8 +27,14 @@ module.exports = async () => {
 
             await fs.unlink(file);
 
+            let reqString = `${statusCode} ${method} ${domain}`;
+
+            if (port && ![80, 443].includes(port)) {
+                reqString += `:${port}`;
+            }
+
             const data = {
-                values: {[`${statusCode} ${method} ${domain}${port ? `:${port}` : ''}`]: timing},
+                values: {[reqString]: timing},
                 timestamp: date,
             };
 
