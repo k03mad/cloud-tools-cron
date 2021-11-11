@@ -23,21 +23,23 @@ module.exports = async () => {
     const responses = (await Promise.all(reqResponses.map(async file => {
         try {
             const content = await fs.readFile(file, {encoding: 'utf-8'});
-            const {statusCode, method, domain, timing, date} = JSON.parse(content);
+            const {statusCode, method, domain, timing, date, port} = JSON.parse(content);
 
             await fs.unlink(file);
+
+            const reqString = `${statusCode} ${method} ${domain}${port ? `:${port}` : ''}`;
 
             if (Number([...String(statusCode)].shift()) >= 4) {
                 return {
                     meas: 'node-req-responses-fail',
-                    values: {[`${statusCode} ${method} ${domain}`]: timing},
+                    values: {[`${reqString}`]: timing},
                     timestamp: date,
                 };
             }
 
             return {
                 meas: 'node-req-responses-ok',
-                values: {[`${statusCode} ${method} ${domain}`]: timing},
+                values: {[`${reqString}`]: timing},
                 timestamp: date,
             };
 
