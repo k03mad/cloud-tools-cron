@@ -29,14 +29,14 @@ module.exports = async () => {
 
             if (Number([...String(statusCode)].shift()) >= 4) {
                 return {
-                    meas: 'node-req-responses-ok',
+                    meas: 'node-req-responses-fail',
                     values: {[`${statusCode} ${method} ${domain}`]: timing},
                     timestamp: date,
                 };
             }
 
             return {
-                meas: 'node-req-responses-fail',
+                meas: 'node-req-responses-ok',
                 values: {[`${statusCode} ${method} ${domain}`]: timing},
                 timestamp: date,
             };
