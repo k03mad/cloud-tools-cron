@@ -27,21 +27,16 @@ module.exports = async () => {
 
             await fs.unlink(file);
 
-            const reqString = `${statusCode} ${method} ${domain}${port ? `:${port}` : ''}`;
-
-            if (Number([...String(statusCode)].shift()) >= 4) {
-                return {
-                    meas: 'node-req-responses-fail',
-                    values: {[`${reqString}`]: timing},
-                    timestamp: date,
-                };
-            }
-
-            return {
-                meas: 'node-req-responses-ok',
-                values: {[`${reqString}`]: timing},
+            const data = {
+                values: {[`${statusCode} ${method} ${domain}${port ? `:${port}` : ''}`]: timing},
                 timestamp: date,
             };
+
+            if (Number([...String(statusCode)].shift()) >= 4) {
+                return {meas: 'node-req-responses-fail', ...data};
+            }
+
+            return {meas: 'node-req-responses-ok', ...data};
 
         } catch {
             return null;
