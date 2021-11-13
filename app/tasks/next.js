@@ -157,6 +157,9 @@ module.exports = async () => {
             {meas: 'next-dnssec', values: dnssec},
             {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
             {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+            {meas: 'next-logs-req-ips', values: reqIps},
+            {meas: 'next-logs-req-lists', values: reqListsStatus},
+            {meas: 'next-logs-req-protocols', values: reqProtocols},
             {meas: 'next-secure', values: secure},
             {meas: 'next-top-countries', values: topCountriesToValues},
             {meas: 'next-top-devices', values: mapValues(topDevices)},
@@ -174,11 +177,5 @@ module.exports = async () => {
 
             devicesRequestsIsp,
         ].flat(Number.POSITIVE_INFINITY)),
-
-        influx.append([
-            {meas: 'next-logs-req-ips', values: reqIps},
-            {meas: 'next-logs-req-lists', values: reqListsStatus},
-            {meas: 'next-logs-req-protocols', values: reqProtocols},
-        ]),
     ]);
 };
