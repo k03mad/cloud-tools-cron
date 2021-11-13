@@ -151,31 +151,29 @@ module.exports = async () => {
         await cloud.notify({text: notify.join('\n'), parse_mode: ''});
     }
 
-    await Promise.all([
-        influx.write([
-            {meas: 'next-counters', values: counters},
-            {meas: 'next-dnssec', values: dnssec},
-            {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
-            {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
-            {meas: 'next-logs-req-ips', values: reqIps},
-            {meas: 'next-logs-req-lists', values: reqListsStatus},
-            {meas: 'next-logs-req-protocols', values: reqProtocols},
-            {meas: 'next-secure', values: secure},
-            {meas: 'next-top-countries', values: topCountriesToValues},
-            {meas: 'next-top-devices', values: mapValues(topDevices)},
-            {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
-            {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
-            {meas: 'next-top-ips', values: mapValues(ips, {key: 'ip'})},
-            {meas: 'next-top-lists', values: mapValues(topLists, {key: 'id'})},
-            {meas: 'next-top-root', values: mapValues(topRoot)},
+    await influx.write([
+        {meas: 'next-counters', values: counters},
+        {meas: 'next-dnssec', values: dnssec},
+        {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
+        {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+        {meas: 'next-logs-req-ips', values: reqIps},
+        {meas: 'next-logs-req-lists', values: reqListsStatus},
+        {meas: 'next-logs-req-protocols', values: reqProtocols},
+        {meas: 'next-secure', values: secure},
+        {meas: 'next-top-countries', values: topCountriesToValues},
+        {meas: 'next-top-devices', values: mapValues(topDevices)},
+        {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
+        {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
+        {meas: 'next-top-ips', values: mapValues(ips, {key: 'ip'})},
+        {meas: 'next-top-lists', values: mapValues(topLists, {key: 'id'})},
+        {meas: 'next-top-root', values: mapValues(topRoot)},
 
-            queriesPerDay.map(elem => ({
-                meas: 'next-queries',
-                values: {queries: elem.queries, blocked: elem.blockedQueries},
-                timestamp: `${elem.name}000000000`,
-            })),
+        queriesPerDay.map(elem => ({
+            meas: 'next-queries',
+            values: {queries: elem.queries, blocked: elem.blockedQueries},
+            timestamp: `${elem.name}000000000`,
+        })),
 
-            devicesRequestsIsp,
-        ].flat(Number.POSITIVE_INFINITY)),
-    ]);
+        devicesRequestsIsp,
+    ].flat(Number.POSITIVE_INFINITY));
 };
