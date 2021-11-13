@@ -77,21 +77,35 @@ module.exports = async () => {
         list.id = lists.blocklists.find(elem => elem.name === list.name)?.id;
     });
 
-    const listsStatus = {};
+    const reqListsStatus = {};
+    const reqProtocols = {};
+    const reqIps = {};
 
     const notify = [];
 
     for (const elem of logs.reverse()) {
         if (elem.timestamp > lastTimestamp) {
+            if (reqProtocols[elem.protocol]) {
+                reqProtocols[elem.protocol] += 1;
+            } else {
+                reqProtocols[elem.protocol] = 1;
+            }
+
+            if (reqIps[elem.clientIp]) {
+                reqIps[elem.clientIp] += 1;
+            } else {
+                reqIps[elem.clientIp] = 1;
+            }
+
             for (const list of elem.lists) {
                 if (notifyLists.has(list)) {
                     notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
                 }
 
-                if (listsStatus[list]) {
-                    listsStatus[list] += 1;
+                if (reqListsStatus[list]) {
+                    reqListsStatus[list] += 1;
                 } else {
-                    listsStatus[list] = 1;
+                    reqListsStatus[list] = 1;
                 }
             }
 
@@ -137,27 +151,34 @@ module.exports = async () => {
         await cloud.notify({text: notify.join('\n'), parse_mode: ''});
     }
 
-    await influx.write([
-        {meas: 'next-counters', values: counters},
-        {meas: 'next-dnssec', values: dnssec},
-        {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
-        {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
-        {meas: 'next-logs-lists', values: listsStatus},
-        {meas: 'next-secure', values: secure},
-        {meas: 'next-top-countries', values: topCountriesToValues},
-        {meas: 'next-top-devices', values: mapValues(topDevices)},
-        {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
-        {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
-        {meas: 'next-top-ips', values: mapValues(ips, {key: 'ip'})},
-        {meas: 'next-top-lists', values: mapValues(topLists, {key: 'id'})},
-        {meas: 'next-top-root', values: mapValues(topRoot)},
+    await Promise.all([
+        influx.write([
+            {meas: 'next-counters', values: counters},
+            {meas: 'next-dnssec', values: dnssec},
+            {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
+            {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+            {meas: 'next-secure', values: secure},
+            {meas: 'next-top-countries', values: topCountriesToValues},
+            {meas: 'next-top-devices', values: mapValues(topDevices)},
+            {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
+            {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
+            {meas: 'next-top-ips', values: mapValues(ips, {key: 'ip'})},
+            {meas: 'next-top-lists', values: mapValues(topLists, {key: 'id'})},
+            {meas: 'next-top-root', values: mapValues(topRoot)},
 
-        queriesPerDay.map(elem => ({
-            meas: 'next-queries',
-            values: {queries: elem.queries, blocked: elem.blockedQueries},
-            timestamp: `${elem.name}000000000`,
-        })),
+            queriesPerDay.map(elem => ({
+                meas: 'next-queries',
+                values: {queries: elem.queries, blocked: elem.blockedQueries},
+                timestamp: `${elem.name}000000000`,
+            })),
 
-        devicesRequestsIsp,
-    ].flat(Number.POSITIVE_INFINITY));
+            devicesRequestsIsp,
+        ].flat(Number.POSITIVE_INFINITY)),
+
+        influx.append([
+            {meas: 'next-logs-req-ips', values: reqIps},
+            {meas: 'next-logs-req-lists', values: reqListsStatus},
+            {meas: 'next-logs-req-protocols', values: reqProtocols},
+        ]),
+    ]);
 };
