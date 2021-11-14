@@ -58,6 +58,7 @@ module.exports = async () => {
     const logsDevice = {};
     const logsIsp = {};
     const logsCity = {};
+    const logsDeviceIsp = {};
 
     const notify = [];
 
@@ -71,13 +72,18 @@ module.exports = async () => {
             elem.name.includes('.')
                 && object.count(logsDomain, elem.name.split('.').pop());
 
-            elem.deviceName
-                && object.count(logsDevice, elem.deviceName);
-
             const geo = await ip.lookup(elem.clientIp);
+            const isp = renameIsp(geo.isp);
 
-            geo.isp
-                && object.count(logsIsp, renameIsp(geo.isp));
+            object.count(logsIsp, isp);
+
+            if (elem.deviceName) {
+                object.count(logsDevice, elem.deviceName);
+
+                const deviceIsp = `${elem.deviceName} :: ${isp}`;
+                const deviceIndex = topDevices.findIndex(device => device.name === elem.deviceName) + 1;
+                logsDeviceIsp[deviceIsp] = deviceIndex;
+            }
 
             geo.city
                 ? object.count(logsCity, geo.city)
@@ -94,45 +100,26 @@ module.exports = async () => {
 
     logsElementLastTimestamp = logs[0].timestamp;
 
-    const devicesRequestsIsp = await Promise.all(topDevices.map(async ({id, name}, i) => {
-        const {logs: deviceLogs} = await next.query({
-            path: 'logs',
-            searchParams: {device: id, simple: 1, lng: 'en'},
-        });
-
-        return Promise.all(deviceLogs.map(async log => {
-            const geo = await ip.lookup(log.clientIp);
-            const key = `${name} :: ${renameIsp(geo.isp)}`;
-
-            return {
-                meas: 'next-req-devices-isp',
-                values: {[key]: i + 1},
-                timestamp: `${log.timestamp}000000`,
-            };
-        }));
-    }));
-
     if (notify.length > 0) {
         await cloud.notify({text: notify.join('\n'), parse_mode: ''});
     }
 
     await influx.write([
-        {meas: 'next-count-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+        {meas: 'next-entries-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
 
         {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
         {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
         {meas: 'next-top-root', values: mapValues(topRoot)},
 
         {meas: 'next-logs-status', values: {...logsStatus, total: array.sum(Object.values(logsStatus))}},
+        {meas: 'next-logs-city', values: logsCity},
+        {meas: 'next-logs-device-isp', values: logsDeviceIsp},
+        {meas: 'next-logs-device', values: logsDevice},
+        {meas: 'next-logs-dnssec', values: logsDnssec},
+        {meas: 'next-logs-domain', values: logsDomain},
+        {meas: 'next-logs-isp', values: logsIsp},
         {meas: 'next-logs-lists', values: logsLists},
         {meas: 'next-logs-protocol', values: logsProtocol},
-        {meas: 'next-logs-dnssec', values: logsDnssec},
         {meas: 'next-logs-type', values: logsType},
-        {meas: 'next-logs-domain', values: logsDomain},
-        {meas: 'next-logs-device', values: logsDevice},
-        {meas: 'next-logs-isp', values: logsIsp},
-        {meas: 'next-logs-city', values: logsCity},
-
-        devicesRequestsIsp,
-    ].flat(Number.POSITIVE_INFINITY));
+    ]);
 };
