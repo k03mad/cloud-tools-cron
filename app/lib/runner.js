@@ -1,5 +1,6 @@
 'use strict';
 
+const env = require('../../env');
 const {print, influx, promise} = require('@k03mad/utils');
 
 const tries = 3;
@@ -17,8 +18,12 @@ module.exports = async ({task, name, period = '—'}) => {
             const time = Date.now();
             await task();
 
-            const duration = Date.now() - time;
-            return await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
+            if (env.influx.request) {
+                const duration = Date.now() - time;
+                return await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
+            }
+
+            return null;
         } catch (err) {
             if (i === tries) {
                 return print.ex(err, {

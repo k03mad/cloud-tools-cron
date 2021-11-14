@@ -1,7 +1,6 @@
 'use strict';
 
-const converter = require('i18n-iso-countries');
-const {influx, next, ip, cloud} = require('@k03mad/utils');
+const {influx, next, ip, cloud, object} = require('@k03mad/utils');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -14,52 +13,33 @@ const mapValues = (
 const renameIsp = isp => isp
     .replace('Net By Net Holding LLC', 'NBN')
     .replace('T2 Mobile', 'Tele2')
-    .replace(/\s*(LLC|AO|OOO|JSC|ltd|Bank|Limited|Liability|Company|incorporated)\s*/g, '')
+    .replace(/\s*(LLC|AO|OOO|JSC|ltd|Ltd.|Bank|Limited|Liability|Company|incorporated)\s*/g, '')
     .trim();
-
-const topCountriesLen = 15;
-const topCountriesNameMaxLen = 15;
 
 const notifyLists = new Set([
     'AI-Driven Threat Detection',
     'Threat Intelligence Feeds',
 ]);
 
-let lastTimestamp = 0;
+let logsElementLastTimestamp = 0;
 
 /***/
 module.exports = async () => {
     await next.auth();
 
     const [
-        topCountries,
-        gafam,
-        dnssec,
-        secure,
         topRoot,
         topDevices,
-        topLists,
         topDomainsBlocked,
         topDomainsResolved,
-        counters,
-        queriesPerDay,
-        ips,
         lists,
         {logs},
     ] = await Promise.all([
         ...[
-            'traffic_destination_countries',
-            'gafam',
-            'dnssec',
-            'secure_dns',
             'top_root_domains',
             'top_devices',
-            'top_lists',
             'top_domains/blocked',
             'top_domains/resolved',
-            'counters',
-            'queries_chart',
-            'top_client_ips',
         ].map(req => next.query({
             path: `analytics/${req}`,
             searchParams: {from: '-30d', timezoneOffset: '-180', selector: true},
@@ -69,65 +49,46 @@ module.exports = async () => {
         next.query({path: 'logs'}),
     ]);
 
-    topDomainsBlocked.forEach(elem => {
-        elem.queries = -elem.queries;
-    });
-
-    topLists.forEach(list => {
-        list.id = lists.blocklists.find(elem => elem.name === list.name)?.id;
-    });
-
-    const reqListsStatus = {};
-    const reqProtocols = {};
-    const reqIps = {};
+    const logsLists = {};
+    const logsProtocol = {};
+    const logsStatus = {};
+    const logsDnssec = {};
+    const logsType = {};
+    const logsEncrypted = {};
+    const logsDomain = {};
+    const logsDevice = {};
+    const logsIsp = {};
+    const logsCity = {};
 
     const notify = [];
 
-    for (const elem of logs.reverse()) {
-        if (elem.timestamp > lastTimestamp) {
-            if (reqProtocols[elem.protocol]) {
-                reqProtocols[elem.protocol] += 1;
-            } else {
-                reqProtocols[elem.protocol] = 1;
-            }
+    await Promise.all(logs.map(async elem => {
+        if (elem.timestamp > logsElementLastTimestamp) {
+            object.count(logsEncrypted, elem.isEncryptedDNS);
+            object.count(logsStatus, elem.status);
+            object.count(logsDnssec, elem.dnssec);
+            object.count(logsType, elem.type);
+            object.count(logsProtocol, elem.protocol);
+            object.count(logsDomain, elem.name.split('.').pop());
 
-            if (reqIps[elem.clientIp]) {
-                reqIps[elem.clientIp] += 1;
-            } else {
-                reqIps[elem.clientIp] = 1;
-            }
+            elem.deviceName
+                && object.count(logsDevice, elem.deviceName);
+
+            const geo = await ip.lookup(elem.clientIp);
+
+            object.count(logsIsp, renameIsp(geo.isp));
+            object.count(logsCity, geo.city);
 
             for (const list of elem.lists) {
-                if (notifyLists.has(list)) {
-                    notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
-                }
+                notifyLists.has(list)
+                    && notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
 
-                if (reqListsStatus[list]) {
-                    reqListsStatus[list] += 1;
-                } else {
-                    reqListsStatus[list] = 1;
-                }
+                object.count(logsLists, list);
             }
-
-            lastTimestamp = elem.timestamp;
         }
-    }
+    }));
 
-    const topCountriesToValues = Object.fromEntries(
-        Object
-            .entries(topCountries)
-            .map(elem => {
-                let name = converter.getName(elem[0], 'en');
-
-                if (name.length > topCountriesNameMaxLen) {
-                    name = converter.alpha2ToAlpha3(elem[0]);
-                }
-
-                return [name, elem[1].queries];
-            })
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, topCountriesLen),
-    );
+    logsElementLastTimestamp = logs[0].timestamp;
 
     const devicesRequestsIsp = await Promise.all(topDevices.map(async ({id, name}, i) => {
         const {logs: deviceLogs} = await next.query({
@@ -152,27 +113,23 @@ module.exports = async () => {
     }
 
     await influx.write([
-        {meas: 'next-counters', values: counters},
-        {meas: 'next-dnssec', values: dnssec},
-        {meas: 'next-gafam', values: mapValues(gafam, {key: 'company'})},
-        {meas: 'next-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
-        {meas: 'next-logs-req-ips', values: reqIps},
-        {meas: 'next-logs-req-lists', values: reqListsStatus},
-        {meas: 'next-logs-req-protocols', values: reqProtocols},
-        {meas: 'next-secure', values: secure},
-        {meas: 'next-top-countries', values: topCountriesToValues},
+        {meas: 'next-count-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
+
         {meas: 'next-top-devices', values: mapValues(topDevices)},
         {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
         {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
-        {meas: 'next-top-ips', values: mapValues(ips, {key: 'ip'})},
-        {meas: 'next-top-lists', values: mapValues(topLists, {key: 'id'})},
         {meas: 'next-top-root', values: mapValues(topRoot)},
 
-        queriesPerDay.map(elem => ({
-            meas: 'next-queries',
-            values: {queries: elem.queries, blocked: elem.blockedQueries},
-            timestamp: `${elem.name}000000000`,
-        })),
+        {meas: 'next-logs-lists', values: logsLists},
+        {meas: 'next-logs-protocol', values: logsProtocol},
+        {meas: 'next-logs-status', values: logsStatus},
+        {meas: 'next-logs-dnssec', values: logsDnssec},
+        {meas: 'next-logs-type', values: logsType},
+        {meas: 'next-logs-encrypted', values: logsEncrypted},
+        {meas: 'next-logs-domain', values: logsDomain},
+        {meas: 'next-logs-device', values: logsDevice},
+        {meas: 'next-logs-isp', values: logsIsp},
+        {meas: 'next-logs-city', values: logsCity},
 
         devicesRequestsIsp,
     ].flat(Number.POSITIVE_INFINITY));
