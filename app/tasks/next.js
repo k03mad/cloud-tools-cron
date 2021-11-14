@@ -69,15 +69,21 @@ module.exports = async () => {
             object.count(logsDnssec, elem.dnssec);
             object.count(logsType, elem.type);
             object.count(logsProtocol, elem.protocol);
-            object.count(logsDomain, elem.name.split('.').pop());
+
+            elem.name.includes('.')
+                && object.count(logsDomain, elem.name.split('.').pop());
 
             elem.deviceName
                 && object.count(logsDevice, elem.deviceName);
 
             const geo = await ip.lookup(elem.clientIp);
 
-            object.count(logsIsp, renameIsp(geo.isp));
-            object.count(logsCity, geo.city);
+            geo.isp
+                && object.count(logsIsp, renameIsp(geo.isp));
+
+            geo.city
+                ? object.count(logsCity, geo.city)
+                : object.count(logsCity, geo.countryname);
 
             for (const list of elem.lists) {
                 notifyLists.has(list)
