@@ -1,6 +1,6 @@
 'use strict';
 
-const {influx, next, ip, cloud, object} = require('@k03mad/utils');
+const {influx, next, ip, cloud, object, array} = require('@k03mad/utils');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -54,7 +54,6 @@ module.exports = async () => {
     const logsStatus = {};
     const logsDnssec = {};
     const logsType = {};
-    const logsEncrypted = {};
     const logsDomain = {};
     const logsDevice = {};
     const logsIsp = {};
@@ -64,7 +63,6 @@ module.exports = async () => {
 
     await Promise.all(logs.map(async elem => {
         if (elem.timestamp > logsElementLastTimestamp) {
-            object.count(logsEncrypted, elem.isEncryptedDNS);
             object.count(logsStatus, elem.status);
             object.count(logsDnssec, elem.dnssec);
             object.count(logsType, elem.type);
@@ -121,17 +119,15 @@ module.exports = async () => {
     await influx.write([
         {meas: 'next-count-lists', values: mapValues(lists.blocklists, {key: 'id', value: 'entries'})},
 
-        {meas: 'next-top-devices', values: mapValues(topDevices)},
         {meas: 'next-top-domains-blocked', values: mapValues(topDomainsBlocked)},
         {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
         {meas: 'next-top-root', values: mapValues(topRoot)},
 
+        {meas: 'next-logs-status', values: {...logsStatus, total: array.sum(Object.values(logsStatus))}},
         {meas: 'next-logs-lists', values: logsLists},
         {meas: 'next-logs-protocol', values: logsProtocol},
-        {meas: 'next-logs-status', values: logsStatus},
         {meas: 'next-logs-dnssec', values: logsDnssec},
         {meas: 'next-logs-type', values: logsType},
-        {meas: 'next-logs-encrypted', values: logsEncrypted},
         {meas: 'next-logs-domain', values: logsDomain},
         {meas: 'next-logs-device', values: logsDevice},
         {meas: 'next-logs-isp', values: logsIsp},
