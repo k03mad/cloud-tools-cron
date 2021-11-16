@@ -59,7 +59,7 @@ module.exports = async () => {
     const logsIsp = {};
     const logsCity = {};
     const logsDeviceIsp = {};
-    const logsRareBlocks = {};
+    const logsUniqueBlocks = {};
 
     const notify = [];
 
@@ -75,7 +75,7 @@ module.exports = async () => {
             }
 
             if (elem.lists.length === 1 && elem.status === 2) {
-                object.count(logsRareBlocks, `${elem.lists[0]} :: ${elem.name}`);
+                object.count(logsUniqueBlocks, `${elem.lists[0]} :: ${elem.name}`);
             }
 
             elem.lists.forEach(list => {
@@ -123,8 +123,8 @@ module.exports = async () => {
         {meas: 'next-logs-isp', values: logsIsp},
         {meas: 'next-logs-lists', values: logsLists},
         {meas: 'next-logs-protocol', values: logsProtocol},
-        {meas: 'next-logs-rare-blocks', values: logsRareBlocks},
         {meas: 'next-logs-status', values: logsStatus},
         {meas: 'next-logs-type', values: logsType},
+        {meas: 'next-logs-unique-blocks', values: logsUniqueBlocks},
     ]);
 };
