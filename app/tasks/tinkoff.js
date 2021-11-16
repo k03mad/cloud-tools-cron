@@ -37,7 +37,7 @@ module.exports = async () => {
         .value;
 
     portfolio.forEach(({
-        instrumentType, ticker, lots,
+        instrumentType, ticker, balance,
         expectedYield, averagePositionPrice,
     }) => {
         if (instrumentTypes.has(instrumentType)) {
@@ -47,8 +47,8 @@ module.exports = async () => {
             const currentYieldVal = expectedYield.value;
             const currentYieldCur = expectedYield.currency;
 
-            const currentPriceTotal = (lots * averagePositionPrice.value) + currentYieldVal;
-            const currentPriceOne = currentPriceTotal / lots;
+            const currentPriceTotal = (balance * averagePositionPrice.value) + currentYieldVal;
+            const currentPriceOne = currentPriceTotal / balance;
 
             const isCurrencyUsd = currentYieldCur === 'USD';
 
