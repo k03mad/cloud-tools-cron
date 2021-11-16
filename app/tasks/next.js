@@ -103,7 +103,6 @@ module.exports = async () => {
 
             const geo = await ip.lookup(elem.clientIp);
             const isp = renameIsp(geo.isp);
-            console.log('—————————— \n isp', isp);
 
             object.count(logsCity, geo.city || geo.countryname);
             object.count(logsIsp, isp);
