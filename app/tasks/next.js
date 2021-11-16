@@ -10,11 +10,26 @@ const mapValues = (
         .map(elem => [elem[key], elem[value]]),
 );
 
-const renameIsp = isp => isp
-    .replace('Net By Net Holding LLC', 'NBN')
-    .replace('T2 Mobile', 'Tele2')
-    .replace(/\s*(LLC|AO|OOO|JSC|ltd|Ltd.|Bank|Limited|Liability|Company|incorporated)\s*/g, '')
-    .trim();
+const renameIsp = isp => {
+    const replaces = [
+        ['Net By Net Holding LLC', 'NBN'],
+        ['T2 Mobile', 'Tele2'],
+        ['YANDEX', 'Yandex'],
+    ];
+
+    const removes = [
+        'LLC', 'AO', 'OOO', 'JSC', 'ltd', 'Ltd.',
+        'Bank', 'Limited', 'Liability', 'Company', 'incorporated', 'Oy$',
+    ];
+
+    replaces.forEach(([from, to]) => {
+        isp = isp.replace(from, to);
+    });
+
+    return isp
+        .replace(new RegExp(`\\s*(${removes.join('|')})\\s*`, 'g'), '')
+        .trim();
+};
 
 const notifyLists = new Set([
     'AI-Driven Threat Detection',
@@ -88,6 +103,7 @@ module.exports = async () => {
 
             const geo = await ip.lookup(elem.clientIp);
             const isp = renameIsp(geo.isp);
+            console.log('—————————— \n isp', isp);
 
             object.count(logsCity, geo.city || geo.countryname);
             object.count(logsIsp, isp);
