@@ -94,7 +94,6 @@ module.exports = async () => {
                 && elem.status === 2
                 && elem.deviceName !== 'Mad-Checker'
             ) {
-
                 object.count(logsUniqueBlocks, `${elem.lists[0]} :: ${elem.name}`);
             }
 
