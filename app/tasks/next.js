@@ -1,6 +1,6 @@
 'use strict';
 
-const {influx, next, ip, cloud, object, array} = require('@k03mad/utils');
+const {influx, next, ip, cloud, object} = require('@k03mad/utils');
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -59,6 +59,7 @@ module.exports = async () => {
     const logsIsp = {};
     const logsCity = {};
     const logsDeviceIsp = {};
+    const logsRareBlocks = {};
 
     const notify = [];
 
@@ -89,6 +90,10 @@ module.exports = async () => {
                 ? object.count(logsCity, geo.city)
                 : object.count(logsCity, geo.countryname);
 
+            if (elem.lists.length === 1 && elem.status === 2) {
+                object.count(logsRareBlocks, `${elem.lists[0]} :: ${elem.name}`);
+            }
+
             for (const list of elem.lists) {
                 notifyLists.has(list)
                     && notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
@@ -111,7 +116,6 @@ module.exports = async () => {
         {meas: 'next-top-domains-resolved', values: mapValues(topDomainsResolved)},
         {meas: 'next-top-root', values: mapValues(topRoot)},
 
-        {meas: 'next-logs-status', values: {...logsStatus, total: array.sum(Object.values(logsStatus))}},
         {meas: 'next-logs-city', values: logsCity},
         {meas: 'next-logs-device-isp', values: logsDeviceIsp},
         {meas: 'next-logs-device', values: logsDevice},
@@ -120,6 +124,8 @@ module.exports = async () => {
         {meas: 'next-logs-isp', values: logsIsp},
         {meas: 'next-logs-lists', values: logsLists},
         {meas: 'next-logs-protocol', values: logsProtocol},
+        {meas: 'next-logs-rare-blocks', values: logsRareBlocks},
+        {meas: 'next-logs-status', values: logsStatus},
         {meas: 'next-logs-type', values: logsType},
     ]);
 };
