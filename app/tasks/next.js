@@ -89,7 +89,12 @@ module.exports = async () => {
                 object.count(logsDomain, elem.name.split('.').pop());
             }
 
-            if (elem.lists.length === 1 && elem.status === 2) {
+            if (
+                elem.lists.length === 1
+                && elem.status === 2
+                && elem.deviceName !== 'Mad-Checker'
+            ) {
+
                 object.count(logsUniqueBlocks, `${elem.lists[0]} :: ${elem.name}`);
             }
 
