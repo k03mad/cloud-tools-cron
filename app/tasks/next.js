@@ -70,12 +70,26 @@ module.exports = async () => {
             object.count(logsType, elem.type);
             object.count(logsProtocol, elem.protocol);
 
-            elem.name.includes('.')
-                && object.count(logsDomain, elem.name.split('.').pop());
+            if (elem.name.includes('.')) {
+                object.count(logsDomain, elem.name.split('.').pop());
+            }
+
+            if (elem.lists.length === 1 && elem.status === 2) {
+                object.count(logsRareBlocks, `${elem.lists[0]} :: ${elem.name}`);
+            }
+
+            elem.lists.forEach(list => {
+                if (notifyLists.has(list)) {
+                    notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
+                }
+
+                object.count(logsLists, list);
+            });
 
             const geo = await ip.lookup(elem.clientIp);
             const isp = renameIsp(geo.isp);
 
+            object.count(logsCity, geo.city || geo.countryname);
             object.count(logsIsp, isp);
 
             if (elem.deviceName) {
@@ -84,21 +98,6 @@ module.exports = async () => {
                 const deviceIsp = `${elem.deviceName} :: ${isp}`;
                 const deviceIndex = topDevices.findIndex(device => device.name === elem.deviceName) + 1;
                 logsDeviceIsp[deviceIsp] = deviceIndex;
-            }
-
-            geo.city
-                ? object.count(logsCity, geo.city)
-                : object.count(logsCity, geo.countryname);
-
-            if (elem.lists.length === 1 && elem.status === 2) {
-                object.count(logsRareBlocks, `${elem.lists[0]} :: ${elem.name}`);
-            }
-
-            for (const list of elem.lists) {
-                notifyLists.has(list)
-                    && notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
-
-                object.count(logsLists, list);
             }
         }
     }));
