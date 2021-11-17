@@ -16,7 +16,7 @@ module.exports = async () => {
             RUB: 500,
         },
         Etf: {
-            USD: 20,
+            USD: 30,
             RUB: 500,
         },
     };
