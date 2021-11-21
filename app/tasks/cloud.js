@@ -4,14 +4,6 @@ const {shell, influx} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
-    const cmd = [
-        'uptime',
-        "awk '{print $1}' /proc/uptime",
-        'df',
-        'free -b',
-        'ps -e | wc -l',
-    ];
-
     const re = {
         load: /load average: (\d\.\d\d)/,
         disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
@@ -25,6 +17,14 @@ module.exports = async () => {
         yandex: '77.88.8.8',
         adguard: '94.140.14.14',
     };
+
+    const cmd = [
+        'uptime',
+        "awk '{print $1}' /proc/uptime",
+        'df',
+        'free -b',
+        'ps -e | wc -l',
+    ];
 
     const [uptime, proc, df, free, ps, ...dig] = await Promise.all(
         [
