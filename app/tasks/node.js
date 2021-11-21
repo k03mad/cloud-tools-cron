@@ -47,6 +47,7 @@ module.exports = async () => {
         } catch {
             return null;
         }
+    // eslint-disable-next-line unicorn/no-await-expression-member
     }))).filter(Boolean);
 
     JSON.parse(pm2).forEach(elem => {

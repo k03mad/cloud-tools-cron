@@ -18,6 +18,7 @@ const tasks = {
 };
 
 const everyMinuteTasks = {
+    cloud: require('./tasks/cloud'),
     f2b: require('./tasks/f2b'),
     influx: require('./tasks/influx'),
     lastfm: require('./tasks/lastfm'),
