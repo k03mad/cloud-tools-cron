@@ -36,7 +36,6 @@ module.exports = async () => {
     const load = Number(uptime.match(re.load)[1].replace(',', '.'));
 
     const disk = df.match(re.disk).groups;
-
     const memory = free.match(re.mem).groups;
 
     Object.entries(disk).forEach(([key, value]) => {
