@@ -43,10 +43,10 @@ module.exports = async () => {
     // uptime
     cmd.uptime = cmd.uptime
         .replace('up ', '')
-        .replace(' week, ', 'w')
-        .replace(' days, ', 'd')
-        .replace(' hours, ', 'h')
-        .replace(' minutes, ', 'm');
+        .replace(/ week(s)?, /, 'w')
+        .replace(/ day(s)?, /, 'd')
+        .replace(/ hour(s)?, /, 'h')
+        .replace(/ minute(s)?, /, 'm');
 
     // cpu
     cmd.load = Number(cmd.load.match(re.load)[2].replace(',', '.'));
