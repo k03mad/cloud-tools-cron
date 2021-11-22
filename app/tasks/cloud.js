@@ -82,7 +82,7 @@ module.exports = async () => {
         cmd.dns[key] = Number(value.match(re.dns)[1]);
     });
 
-    console.log([
+    await influx.write([
         {meas: 'cloud-usage-certs', values: cmd.certbot},
         {meas: 'cloud-usage-cpu', values: {load: cmd.uptime}},
         {meas: 'cloud-usage-disk', values: cmd.df},
