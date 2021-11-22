@@ -6,7 +6,7 @@ const {shell, influx} = require('@k03mad/utils');
 module.exports = async () => {
     const cmd = {
         load: 'uptime',
-        proc: "awk '{print $1}' /proc/uptime",
+        uptime: 'uptime -p',
         df: 'df',
         mem: 'free -b',
         ps: 'ps -e | wc -l',
@@ -39,6 +39,9 @@ module.exports = async () => {
             cmd[key] = await shell.run(value);
         }
     }));
+
+    // uptime
+    cmd.uptime = cmd.uptime.replace('up ', '');
 
     // cpu
     cmd.load = Number(cmd.load.match(re.load)[2].replace(',', '.'));
@@ -89,6 +92,6 @@ module.exports = async () => {
         {meas: 'cloud-usage-dns', values: cmd.dns},
         {meas: 'cloud-usage-memory', values: cmd.mem},
         {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
-        {meas: 'cloud-usage-uptime', values: {uptime: Number(cmd.proc)}},
+        {meas: 'cloud-usage-uptime', values: {uptime: cmd.uptime}},
     ]);
 };
