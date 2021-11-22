@@ -4,10 +4,10 @@ const env = require('../../env');
 const {promises: fs} = require('fs');
 const {shell, influx, folder} = require('@k03mad/utils');
 
-const gitFolder = `${env.fs.home}/git/`;
-
 /***/
 module.exports = async () => {
+    const gitFolder = `${env.fs.home}/git/`;
+
     const ls = await shell.run(`ls -1 ${gitFolder}`);
 
     await Promise.all(ls.split('\n').map(async elem => {

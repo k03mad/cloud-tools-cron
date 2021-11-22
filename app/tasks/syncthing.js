@@ -2,7 +2,7 @@
 
 const {syncthing, array, influx, folder} = require('@k03mad/utils');
 
-/** @returns {Promise} */
+/***/
 module.exports = async () => {
     const bytes = {};
     const addresses = {};
