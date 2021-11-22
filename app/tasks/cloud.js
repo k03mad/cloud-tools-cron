@@ -46,7 +46,8 @@ module.exports = async () => {
         .replace(/ week(s)?, /, 'w')
         .replace(/ day(s)?, /, 'd')
         .replace(/ hour(s)?, /, 'h')
-        .replace(/ minute(s)?, /, 'm');
+        .replace(/ minute(s)?/, 'm')
+        .trim();
 
     // cpu
     cmd.load = Number(cmd.load.match(re.load)[2].replace(',', '.'));
