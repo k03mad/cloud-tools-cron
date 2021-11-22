@@ -1,20 +1,18 @@
 'use strict';
 
+const generateCron = require('./lib/tasks');
 const runner = require('./lib/runner');
 const {Cron} = require('recron');
 
 const cron = new Cron();
 cron.start();
 
-const tasks = {
-    '@every 1h': {
-        apt: require('./tasks/apt'),
-        myshows: require('./tasks/myshows'),
-    },
-
-    '@every 6h': {
-        magnet: require('./tasks/magnet'),
-    },
+const everyHourTasks = {
+    'apt': require('./tasks/apt'),
+    'git': require('./tasks/git'),
+    'myshows': require('./tasks/myshows'),
+    'magnet-shows': require('./tasks/magnet-shows'),
+    'magnet-films': require('./tasks/magnet-films'),
 };
 
 const everyMinuteTasks = {
@@ -30,12 +28,10 @@ const everyMinuteTasks = {
     tinkoff: require('./tasks/tinkoff'),
 };
 
-const everyMinuteTasksArr = Object.entries(everyMinuteTasks);
-const secondsForTask = Math.floor(59 / everyMinuteTasksArr.length);
-
-everyMinuteTasksArr.forEach(([key, value], i) => {
-    tasks[`${i * secondsForTask} */1 * * * *`] = {[key]: value};
-});
+const tasks = {
+    ...generateCron(everyMinuteTasks),
+    ...generateCron(everyHourTasks, 'hour'),
+};
 
 for (const [period, value] of Object.entries(tasks)) {
     for (const [name, task] of Object.entries(value)) {

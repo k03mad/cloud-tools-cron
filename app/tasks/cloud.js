@@ -11,6 +11,7 @@ module.exports = async () => {
         mem: 'free -b',
         ps: 'ps -e | wc -l',
         certbot: 'sudo certbot certificates',
+        pkg: "dpkg-query -l | grep -c '^ii'",
         dns: {
             cloudflare: 'dig example.com @1.1.1.1',
             google: 'dig example.com @8.8.8.8',
@@ -98,6 +99,7 @@ module.exports = async () => {
         {meas: 'cloud-usage-dns', values: cmd.dns},
         {meas: 'cloud-usage-memory', values: cmd.mem},
         {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
+        {meas: 'cloud-usage-packages', values: {pkg: Number(cmd.pkg)}},
         {meas: 'cloud-usage-uptime', values: {uptime: cmd.uptime}},
     ]);
 };
