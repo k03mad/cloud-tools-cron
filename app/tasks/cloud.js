@@ -5,7 +5,7 @@ const {shell, influx} = require('@k03mad/utils');
 /***/
 module.exports = async () => {
     const cmd = {
-        uptime: 'uptime',
+        load: 'uptime',
         proc: "awk '{print $1}' /proc/uptime",
         df: 'df',
         mem: 'free -b',
@@ -41,7 +41,7 @@ module.exports = async () => {
     }));
 
     // cpu
-    cmd.uptime = Number(cmd.uptime.match(re.load)[2].replace(',', '.'));
+    cmd.load = Number(cmd.load.match(re.load)[2].replace(',', '.'));
 
     // certs
     const domains = [...cmd.certbot.matchAll(re.cert.domains)].map(elem => elem[1]);
@@ -84,11 +84,11 @@ module.exports = async () => {
 
     await influx.write([
         {meas: 'cloud-usage-certs', values: cmd.certbot},
-        {meas: 'cloud-usage-cpu', values: {load: cmd.uptime}},
+        {meas: 'cloud-usage-cpu', values: {load: cmd.load}},
         {meas: 'cloud-usage-disk', values: cmd.df},
         {meas: 'cloud-usage-dns', values: cmd.dns},
         {meas: 'cloud-usage-memory', values: cmd.mem},
         {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
-        {meas: 'cloud-usage-uptime', values: {uptime: Number(cmd.uptime)}},
+        {meas: 'cloud-usage-uptime', values: {uptime: Number(cmd.proc)}},
     ]);
 };
