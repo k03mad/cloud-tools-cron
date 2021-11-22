@@ -5,7 +5,7 @@ const hasha = require('hasha');
 const os = require('os');
 const path = require('path');
 const {promises: fs} = require('fs');
-const {shell, influx, folder} = require('@k03mad/utils');
+const {shell, influx} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
@@ -13,9 +13,8 @@ module.exports = async () => {
     const cpu = {};
     const restarts = {};
 
-    const [pm2, gitSizes, reqCache, reqResponses] = await Promise.all([
+    const [pm2, reqCache, reqResponses] = await Promise.all([
         shell.run('pm2 jlist'),
-        folder.size('~/git/*'),
         globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
         globby(path.join(os.tmpdir(), '_req_stats')),
     ]);
@@ -60,7 +59,6 @@ module.exports = async () => {
         {meas: 'node-pm2-cpu', values: cpu},
         {meas: 'node-pm2-memory', values: memory},
         {meas: 'node-pm2-restarts', values: restarts},
-        {meas: 'node-repo-size', values: gitSizes},
         {meas: 'node-req-cache', values: {nodeCache: reqCache.length}},
     ];
 

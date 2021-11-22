@@ -2,7 +2,7 @@
 
 const env = require('../../env');
 const {promises: fs} = require('fs');
-const {shell} = require('@k03mad/utils');
+const {shell, influx, folder} = require('@k03mad/utils');
 
 const gitFolder = `${env.fs.home}/git/`;
 
@@ -21,4 +21,7 @@ module.exports = async () => {
             ]);
         }
     }));
+
+    const sizes = await folder.size(`${gitFolder}*`, {trim: gitFolder});
+    await influx.write({meas: 'git-repo-size', values: sizes});
 };
