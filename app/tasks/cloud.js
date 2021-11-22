@@ -41,7 +41,12 @@ module.exports = async () => {
     }));
 
     // uptime
-    cmd.uptime = cmd.uptime.replace('up ', '');
+    cmd.uptime = cmd.uptime
+        .replace('up ', '')
+        .replace(' week, ', 'w')
+        .replace(' days, ', 'd')
+        .replace(' hours, ', 'h')
+        .replace(' minutes, ', 'm');
 
     // cpu
     cmd.load = Number(cmd.load.match(re.load)[2].replace(',', '.'));
