@@ -3,7 +3,7 @@
 const env = require('../../env');
 const {print, influx, promise} = require('@k03mad/utils');
 
-const tries = 3;
+const tries = env.cloud.is ? 3 : 1;
 
 /**
  * @param {object} opts

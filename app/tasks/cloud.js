@@ -4,58 +4,91 @@ const {shell, influx} = require('@k03mad/utils');
 
 /***/
 module.exports = async () => {
+    const cmd = {
+        uptime: 'uptime',
+        proc: "awk '{print $1}' /proc/uptime",
+        df: 'df',
+        mem: 'free -b',
+        ps: 'ps -e | wc -l',
+        certbot: 'sudo certbot certificates',
+        dns: {
+            cloudflare: 'dig example.com @1.1.1.1',
+            google: 'dig example.com @8.8.8.8',
+            yandex: 'dig example.com @77.88.8.8',
+            adguard: 'dig example.com @94.140.14.14',
+        },
+    };
+
     const re = {
-        load: /load average: (\d\.\d\d)/,
+        load: /load average(s)?: (\d[,.]\d\d)/,
         disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
         mem: /Mem: +(?<total>\d+) +(?<used>\d+) +(?<free>\d+) +(?<shared>\d+) +(?<buff>\d+) +(?<available>\d+)/,
         dns: /Query time: (\d+) msec/,
+        cert: {
+            domains: /Domains: (.+)/g,
+            valid: /VALID: (\d+)/g,
+        },
     };
 
-    const dns = {
-        cloudflare: '1.1.1.1',
-        google: '8.8.8.8',
-        yandex: '77.88.8.8',
-        adguard: '94.140.14.14',
-    };
+    await Promise.all(Object.entries(cmd).map(async ([key, value]) => {
+        if (typeof value === 'object') {
+            await Promise.all(Object.entries(value).map(async ([nestedKey, nestedValue]) => {
+                cmd[key][nestedKey] = await shell.run(nestedValue);
+            }));
+        } else {
+            cmd[key] = await shell.run(value);
+        }
+    }));
 
-    const cmd = [
-        'uptime',
-        "awk '{print $1}' /proc/uptime",
-        'df',
-        'free -b',
-        'ps -e | wc -l',
-    ];
+    // cpu
+    cmd.uptime = Number(cmd.uptime.match(re.load)[2].replace(',', '.'));
 
-    const [uptime, proc, df, free, ps, ...dig] = await Promise.all(
-        [
-            ...cmd,
-            ...Object.values(dns).map(elem => `dig example.com @${elem}`),
-        ].map(elem => shell.run(elem)),
-    );
+    // certs
+    const domains = [...cmd.certbot.matchAll(re.cert.domains)].map(elem => elem[1]);
+    const valid = [...cmd.certbot.matchAll(re.cert.valid)].map(elem => Number(elem[1]));
 
-    const load = Number(uptime.match(re.load)[1].replace(',', '.'));
-
-    const disk = df.match(re.disk).groups;
-    const memory = free.match(re.mem).groups;
-
-    Object.entries(disk).forEach(([key, value]) => {
-        disk[key] = Number(value);
+    domains.forEach((domain, i) => {
+        if (typeof cmd.certbot === 'object') {
+            cmd.certbot[domain] = valid[i];
+        } else {
+            cmd.certbot = {[domain]: valid[i]};
+        }
     });
 
-    Object.entries(memory).forEach(([key, value]) => {
-        memory[key] = Number(value);
+    // disk
+    Object
+        .entries(cmd.df.match(re.disk).groups)
+        .forEach(([key, value]) => {
+            if (typeof cmd.df === 'object') {
+                cmd.df[key] = Number(value);
+            } else {
+                cmd.df = {[key]: Number(value)};
+            }
+        });
+
+    // mem
+    Object
+        .entries(cmd.mem.match(re.mem).groups)
+        .forEach(([key, value]) => {
+            if (typeof cmd.mem === 'object') {
+                cmd.mem[key] = Number(value);
+            } else {
+                cmd.mem = {[key]: Number(value)};
+            }
+        });
+
+    // dns
+    Object.entries(cmd.dns).forEach(([key, value]) => {
+        cmd.dns[key] = Number(value.match(re.dns)[1]);
     });
 
-    Object.keys(dns).forEach((key, i) => {
-        dns[key] = Number(dig[i].match(re.dns)[1]);
-    });
-
-    await influx.write([
-        {meas: 'cloud-usage-cpu', values: {load}},
-        {meas: 'cloud-usage-disk', values: disk},
-        {meas: 'cloud-usage-dns', values: dns},
-        {meas: 'cloud-usage-memory', values: memory},
-        {meas: 'cloud-usage-process', values: {process: Number(ps)}},
-        {meas: 'cloud-usage-uptime', values: {uptime: Number(proc)}},
+    console.log([
+        {meas: 'cloud-usage-certs', values: cmd.certbot},
+        {meas: 'cloud-usage-cpu', values: {load: cmd.uptime}},
+        {meas: 'cloud-usage-disk', values: cmd.df},
+        {meas: 'cloud-usage-dns', values: cmd.dns},
+        {meas: 'cloud-usage-memory', values: cmd.mem},
+        {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
+        {meas: 'cloud-usage-uptime', values: {uptime: Number(cmd.uptime)}},
     ]);
 };

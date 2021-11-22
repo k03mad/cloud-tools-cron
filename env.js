@@ -1,6 +1,9 @@
 'use strict';
 
 module.exports = {
+    cloud: {
+        is: process.env.IS_CLOUD,
+    },
     lastfm: {
         users: process.env.LASTFM_USERS,
     },
