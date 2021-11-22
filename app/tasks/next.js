@@ -14,6 +14,7 @@ const renameIsp = isp => {
     const replaces = [
         ['Net By Net Holding LLC', 'NBN'],
         ['T2 Mobile', 'Tele2'],
+        ['Tele2 Russia', 'Tele2'],
         ['YANDEX', 'Yandex'],
     ];
 
