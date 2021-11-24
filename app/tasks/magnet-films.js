@@ -3,4 +3,4 @@
 const {repo} = require('@k03mad/utils');
 
 /** @returns {Promise<string>} */
-module.exports = () => repo.run('magnet-co-parser', 'start --type=films');
+module.exports = () => repo.run('magnet-co-parser', 'parse --type=films');
