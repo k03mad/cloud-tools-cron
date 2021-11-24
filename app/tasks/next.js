@@ -32,11 +32,6 @@ const renameIsp = isp => {
         .trim();
 };
 
-const notifyLists = new Set([
-    'AI-Driven Threat Detection',
-    'Threat Intelligence Feeds',
-]);
-
 let logsElementLastTimestamp = 0;
 
 /***/
@@ -75,7 +70,6 @@ module.exports = async () => {
     const logsIsp = {};
     const logsCity = {};
     const logsDeviceIsp = {};
-    const logsUniqueBlocks = {};
 
     const notify = [];
 
@@ -90,19 +84,7 @@ module.exports = async () => {
                 object.count(logsDomain, elem.name.split('.').pop());
             }
 
-            if (
-                elem.lists.length === 1
-                && elem.status === 2
-                && elem.deviceName !== 'Mad-Checker'
-            ) {
-                object.count(logsUniqueBlocks, `${elem.lists[0]} :: ${elem.name}`);
-            }
-
             elem.lists.forEach(list => {
-                if (notifyLists.has(list)) {
-                    notify.push(`${list} :: ${elem.deviceName}\n— ${elem.name}`);
-                }
-
                 object.count(logsLists, list);
             });
 
@@ -145,6 +127,5 @@ module.exports = async () => {
         {meas: 'next-logs-protocol', values: logsProtocol},
         {meas: 'next-logs-status', values: logsStatus},
         {meas: 'next-logs-type', values: logsType},
-        {meas: 'next-logs-unique-blocks', values: logsUniqueBlocks},
     ]);
 };
