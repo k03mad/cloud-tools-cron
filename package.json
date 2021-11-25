@@ -12,17 +12,17 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/utils": "19.4.1",
+    "@k03mad/utils": "19.5.5",
     "as-table": "1.0.55",
     "chalk": "4.1.2",
     "globby": "11.0.4",
     "hasha": "5.2.2",
-    "i18n-iso-countries": "7.0.0",
+    "i18n-iso-countries": "7.1.0",
     "oui": "11.0.93",
     "recron": "1.1.1"
   },
   "devDependencies": {
-    "@k03mad/eslint-config": "8.2.2",
+    "@k03mad/eslint-config": "8.2.3",
     "eslint": "7.32.0",
     "eslint-plugin-jsdoc": "37.0.3",
     "eslint-plugin-node": "11.1.0",
