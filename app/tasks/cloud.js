@@ -110,7 +110,7 @@ module.exports = async () => {
 
     Object.entries(_.invertBy(tempPorts)).forEach(([name, ports]) => {
         ports.map(Number).sort((a, b) => a - b).forEach((port, i, arr) => {
-            const key = arr.length > 1 ? `${name}_${++i}` : name;
+            const key = arr.length > 1 && i > 0 ? `${name}_${++i}` : name;
 
             if (typeof cmd.ports === 'object') {
                 cmd.ports[key] = port;
