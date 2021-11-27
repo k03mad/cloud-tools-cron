@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const {shell, influx} = require('@k03mad/utils');
 
 /***/
@@ -12,6 +13,7 @@ module.exports = async () => {
         ps: 'ps -e | wc -l',
         certbot: 'sudo certbot certificates',
         pkg: "dpkg-query -l | grep -c '^ii'",
+        ports: 'sudo lsof -i -P -n | grep LISTEN',
         dns: {
             cloudflare: 'dig example.com @1.1.1.1',
             google: 'dig example.com @8.8.8.8',
@@ -25,6 +27,7 @@ module.exports = async () => {
         disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
         mem: /Mem: +(?<total>\d+) +(?<used>\d+) +(?<free>\d+) +(?<shared>\d+) +(?<buff>\d+) +(?<available>\d+)/,
         dns: /Query time: (\d+) msec/,
+        ports: /^(?<name>\S+)\s.+:(?<port>\d+) \(LISTEN\)/,
         cert: {
             domains: /Domains: (.+)/g,
             valid: /VALID: (\d+)/g,
@@ -92,14 +95,40 @@ module.exports = async () => {
         cmd.dns[key] = Number(value.match(re.dns)[1]);
     });
 
+    // ports
+    const tempPorts = {};
+
+    cmd.ports
+        .split('\n')
+        .forEach(elem => {
+            const matched = elem.match(re.ports)?.groups;
+
+            if (matched) {
+                tempPorts[matched.port] = matched.name;
+            }
+        });
+
+    Object.entries(_.invertBy(tempPorts)).forEach(([name, ports]) => {
+        ports.map(Number).sort((a, b) => a - b).forEach((port, i, arr) => {
+            const key = arr.length > 1 ? `${name}_${++i}` : name;
+
+            if (typeof cmd.ports === 'object') {
+                cmd.ports[key] = port;
+            } else {
+                cmd.ports = {[key]: port};
+            }
+        });
+    });
+
     await influx.write([
         {meas: 'cloud-usage-certs', values: cmd.certbot},
         {meas: 'cloud-usage-cpu', values: {load: cmd.load}},
         {meas: 'cloud-usage-disk', values: cmd.df},
         {meas: 'cloud-usage-dns', values: cmd.dns},
         {meas: 'cloud-usage-memory', values: cmd.mem},
-        {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
         {meas: 'cloud-usage-packages', values: {pkg: Number(cmd.pkg)}},
+        {meas: 'cloud-usage-ports', values: cmd.ports},
+        {meas: 'cloud-usage-process', values: {process: Number(cmd.ps)}},
         {meas: 'cloud-usage-uptime', values: {uptime: cmd.uptime}},
     ]);
 };
