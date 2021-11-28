@@ -27,7 +27,10 @@ module.exports = async () => {
         disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
         mem: /Mem: +(?<total>\d+) +(?<used>\d+) +(?<free>\d+) +(?<shared>\d+) +(?<buff>\d+) +(?<available>\d+)/,
         dns: /Query time: (\d+) msec/,
-        ports: /^(?<name>\S+)\s.+:(?<port>\d+) \(LISTEN\)/,
+        ports: {
+            listen: /^(?<name>\S+)\s.+:(?<port>\d+) \(LISTEN\)/,
+            sanitize: /\\x\d+\//g,
+        },
         cert: {
             domains: /Domains: (.+)/g,
             valid: /VALID: (\d+)/g,
@@ -101,10 +104,10 @@ module.exports = async () => {
     cmd.ports
         .split('\n')
         .forEach(elem => {
-            const matched = elem.match(re.ports)?.groups;
+            const matched = elem.match(re.ports.listen)?.groups;
 
             if (matched) {
-                tempPorts[matched.port] = matched.name.replace(/\\x\d+\//g, '');
+                tempPorts[matched.port] = matched.name.replace(re.ports.sanitize, '');
             }
         });
 
