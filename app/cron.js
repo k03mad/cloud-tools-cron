@@ -26,6 +26,7 @@ const everyMinuteTasks = {
     pinger: require('./tasks/pinger'),
     syncthing: require('./tasks/syncthing'),
     tinkoff: require('./tasks/tinkoff'),
+    ufw: require('./tasks/ufw'),
 };
 
 const tasks = {
