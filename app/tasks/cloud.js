@@ -104,7 +104,7 @@ module.exports = async () => {
             const matched = elem.match(re.ports)?.groups;
 
             if (matched) {
-                tempPorts[matched.port] = matched.name;
+                tempPorts[matched.port] = matched.name.replace(/\\x\d+\//g, '');
             }
         });
 
