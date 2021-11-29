@@ -15,7 +15,7 @@
     "@k03mad/utils": "20.4.0",
     "as-table": "1.0.55",
     "colorette": "2.0.16",
-    "globby": "11.0.4",
+    "fast-glob": "3.2.7",
     "hasha": "5.2.2",
     "lodash": "4.17.21",
     "oui": "11.0.94",

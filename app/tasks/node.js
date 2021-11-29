@@ -1,6 +1,6 @@
 'use strict';
 
-const globby = require('globby');
+const glob = require('fast-glob');
 const hasha = require('hasha');
 const os = require('os');
 const path = require('path');
@@ -15,8 +15,8 @@ module.exports = async () => {
 
     const [pm2, reqCache, reqResponses] = await Promise.all([
         shell.run('pm2 jlist'),
-        globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
-        globby(path.join(os.tmpdir(), '_req_stats')),
+        glob(path.join(os.tmpdir(), hasha('').slice(0, 10), '**')),
+        glob(path.join(os.tmpdir(), '_req_stats', '**')),
     ]);
 
     const responses = (await Promise.all(reqResponses.map(async file => {
