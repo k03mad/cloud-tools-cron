@@ -12,7 +12,7 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/utils": "20.0.0",
+    "@k03mad/utils": "20.2.0",
     "as-table": "1.0.55",
     "colorette": "2.0.16",
     "fix-esm": "1.0.1",
@@ -23,11 +23,10 @@
     "recron": "1.1.1"
   },
   "devDependencies": {
-    "@k03mad/eslint-config": "8.2.3",
-    "eslint": "7.32.0",
+    "@k03mad/eslint-config": "9.0.0",
+    "eslint": "8.3.0",
     "eslint-plugin-jsdoc": "37.0.3",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-promise": "5.1.1",
     "eslint-plugin-sort-requires": "2.1.0",
     "eslint-plugin-unicorn": "39.0.0",
     "husky": "7.0.4"
