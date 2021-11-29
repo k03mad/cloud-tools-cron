@@ -2,7 +2,7 @@
 
 const path = require('path');
 const {array, print} = require('@k03mad/utils');
-const {dim, blue} = require('chalk');
+const {dim, blue} = require('colorette');
 const {promises: fs} = require('fs');
 
 const patches = {
