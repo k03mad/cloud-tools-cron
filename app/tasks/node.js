@@ -1,9 +1,9 @@
 'use strict';
 
+const globby = require('globby');
 const hasha = require('hasha');
 const os = require('os');
 const path = require('path');
-const {globby} = require('fix-esm').require('globby');
 const {promises: fs} = require('fs');
 const {shell, influx} = require('@k03mad/utils');
 
