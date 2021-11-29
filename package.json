@@ -1,6 +1,6 @@
 {
   "name": "cloud-tools-cron",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Cloud Cron",
   "maintainers": [
     "Kirill Molchanov <k03.mad@gmail.com"
