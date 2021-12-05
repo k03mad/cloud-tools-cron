@@ -19,6 +19,7 @@ module.exports = async () => {
             google: 'dig example.com @8.8.8.8',
             yandex: 'dig example.com @77.88.8.8',
             adguard: 'dig example.com @94.140.14.14',
+            default: 'dig example.com',
         },
     };
 
