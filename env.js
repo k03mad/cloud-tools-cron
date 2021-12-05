@@ -7,6 +7,9 @@ module.exports = {
         magnet: {
             port: process.env.CLOUD_MAGNET_PORT,
         },
+        grafana: {
+            port: process.env.CLOUD_GRAFANA_PORT,
+        },
     },
     lastfm: {
         users: process.env.LASTFM_USERS,
