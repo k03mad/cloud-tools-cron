@@ -1,7 +1,11 @@
 'use strict';
 
-const {mikrotik} = require('../../env');
+const {mikrotik, nextdns, cloud} = require('../../env');
 const {pinger} = require('@k03mad/utils');
 
 /** @returns {Promise} */
-module.exports = () => pinger.check({domain: mikrotik.domain, port: 9595});
+module.exports = () => pinger.check([
+    {domain: cloud.domain, port: cloud.magnet.port},
+    {domain: mikrotik.domain, port: mikrotik.ovpn.port},
+    {domain: nextdns.domain},
+]);
