@@ -13,6 +13,8 @@ const tries = env.cloud.is ? 3 : 1;
  * @returns {Promise|null}
  */
 export default async ({name, period = '—', task}) => {
+    let errCount = 0;
+
     for (let i = 1; i <= tries; i++) {
         try {
             const time = Date.now();
@@ -23,24 +25,26 @@ export default async ({name, period = '—', task}) => {
                 return await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
             }
 
-            return null;
+            return;
         } catch (err) {
             if (i === tries) {
-                try {
-                    await influx.write({meas: 'cloud-crons-errors', values: {[name]: 1}});
-                } catch (err_) {
-                    print.ex(err_);
-                }
-
-                return print.ex(err, {
+                print.ex(err, {
                     before: `${name} :: ${period} :: ${i}/${tries}`,
                     afterline: false,
                 });
+
+                errCount = 1;
+                break;
             }
 
+            errCount++;
             await promise.delay(5000);
         }
     }
 
-    return null;
+    try {
+        await influx.write({meas: 'cloud-crons-errors', values: {[name]: errCount}});
+    } catch (err_) {
+        print.ex(err_);
+    }
 };
