@@ -26,6 +26,8 @@ export default async ({name, period = '—', task}) => {
             return null;
         } catch (err) {
             if (i === tries) {
+                await influx.append({meas: 'cloud-crons-errors', values: {[name]: 1}});
+
                 return print.ex(err, {
                     before: `${name} :: ${period} :: ${i}/${tries}`,
                     afterline: false,
