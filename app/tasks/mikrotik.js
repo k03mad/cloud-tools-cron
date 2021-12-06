@@ -1,12 +1,12 @@
-'use strict';
+import utils from '@k03mad/utils';
+import oui from 'oui';
 
-const oui = require('oui');
-const {influx, mikrotik, object, ip, array} = require('@k03mad/utils');
+const {array, influx, ip, mikrotik, object} = utils;
 
 const fillFirewallData = (data, fill) => {
     let lastComment;
 
-    data.forEach(({comment, bytes}) => {
+    data.forEach(({bytes, comment}) => {
         comment
             ? lastComment = comment
             : comment = lastComment;
@@ -22,7 +22,7 @@ const fillFirewallData = (data, fill) => {
 };
 
 /***/
-module.exports = async () => {
+export default async () => {
     const SEPARATOR = ' :: ';
 
     // 1 MB

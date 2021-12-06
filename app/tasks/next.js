@@ -1,6 +1,6 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const {influx, next, ip, cloud, object} = require('@k03mad/utils');
+const {cloud, influx, ip, next, object} = utils;
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -35,7 +35,7 @@ const renameIsp = isp => {
 let logsElementLastTimestamp = 0;
 
 /***/
-module.exports = async () => {
+export default async () => {
     await next.auth();
 
     const [

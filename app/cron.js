@@ -1,33 +1,32 @@
-'use strict';
+import {Cron} from 'recron';
 
-const generateCron = require('./lib/tasks');
-const runner = require('./lib/runner');
-const {Cron} = require('recron');
+import runner from './lib/runner.js';
+import generateCron from './lib/tasks.js';
 
 const cron = new Cron();
 cron.start();
 
-const everyHourTasks = {
-    'apt': require('./tasks/apt'),
-    'git': require('./tasks/git'),
-    'myshows': require('./tasks/myshows'),
-    'magnet-shows': require('./tasks/magnet-shows'),
-    'magnet-films': require('./tasks/magnet-films'),
-};
+const everyHourTasks = [
+    'apt',
+    'git',
+    'myshows',
+    'magnet-shows',
+    'magnet-films',
+];
 
-const everyMinuteTasks = {
-    cloud: require('./tasks/cloud'),
-    f2b: require('./tasks/f2b'),
-    influx: require('./tasks/influx'),
-    lastfm: require('./tasks/lastfm'),
-    mikrotik: require('./tasks/mikrotik'),
-    next: require('./tasks/next'),
-    node: require('./tasks/node'),
-    pinger: require('./tasks/pinger'),
-    syncthing: require('./tasks/syncthing'),
-    tinkoff: require('./tasks/tinkoff'),
-    ufw: require('./tasks/ufw'),
-};
+const everyMinuteTasks = [
+    'cloud',
+    'f2b',
+    'influx',
+    'lastfm',
+    'mikrotik',
+    'next',
+    'node',
+    'pinger',
+    'syncthing',
+    'tinkoff',
+    'ufw',
+];
 
 const tasks = {
     ...generateCron(everyMinuteTasks),

@@ -1,9 +1,9 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const {myshows, influx} = require('@k03mad/utils');
+const {influx, myshows} = utils;
 
 /** @returns {Promise} */
-module.exports = async () => {
+export default async () => {
     await myshows.auth();
 
     const [episodes, {stats}] = await Promise.all([

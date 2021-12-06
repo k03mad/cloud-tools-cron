@@ -1,9 +1,9 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const {shell, influx} = require('@k03mad/utils');
+const {influx, shell} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const ufw = await shell.run('sudo ufw status');
 
     const count = ufw.split('\n').slice(4).length;

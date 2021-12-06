@@ -1,8 +1,7 @@
-'use strict';
+import runner from './app/lib/runner.js';
+import * as tasks from './app/tasks/_index.js';
 
 const name = process.env.npm_config_name;
-
-const runner = require('./app/lib/runner');
-const task = require(`./app/tasks/${name}`);
+const task = tasks[name];
 
 (() => runner({task, name}))();

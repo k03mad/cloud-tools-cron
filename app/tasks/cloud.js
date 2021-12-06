@@ -1,10 +1,10 @@
-'use strict';
+import utils from '@k03mad/utils';
+import _ from 'lodash';
 
-const _ = require('lodash');
-const {shell, influx} = require('@k03mad/utils');
+const {influx, shell} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const cmd = {
         load: 'uptime',
         uptime: 'uptime -p',

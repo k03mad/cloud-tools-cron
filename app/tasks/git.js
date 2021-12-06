@@ -1,11 +1,12 @@
-'use strict';
+import utils from '@k03mad/utils';
+import fs from 'node:fs/promises';
 
-const env = require('../../env');
-const {promises: fs} = require('fs');
-const {shell, influx, folder} = require('@k03mad/utils');
+import env from '../../env.js';
+
+const {folder, influx, shell} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const gitFolder = `${env.fs.home}/git/`;
 
     const ls = await shell.run(`ls -1 ${gitFolder}`);

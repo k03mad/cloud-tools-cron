@@ -1,9 +1,9 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const {shell, influx} = require('@k03mad/utils');
+const {influx, shell} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const apt = await shell.run([
         'sudo apt-get update',
         'sudo apt-get upgrade -u -s',

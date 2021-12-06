@@ -1,28 +1,28 @@
-'use strict';
+import utils from '@k03mad/utils';
+import {globby} from 'globby';
+import hasha from 'hasha';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 
-const glob = require('fast-glob');
-const hasha = require('hasha');
-const os = require('os');
-const path = require('path');
-const {promises: fs} = require('fs');
-const {shell, influx} = require('@k03mad/utils');
+const {influx, shell} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const memory = {};
     const cpu = {};
     const restarts = {};
 
     const [pm2, reqCache, reqResponses] = await Promise.all([
         shell.run('pm2 jlist'),
-        glob(path.join(os.tmpdir(), hasha('').slice(0, 10), '**')),
-        glob(path.join(os.tmpdir(), '_req_stats', '**')),
+        globby(path.join(os.tmpdir(), hasha('').slice(0, 10))),
+        globby(path.join(os.tmpdir(), '_req_stats')),
     ]);
 
     const responses = (await Promise.all(reqResponses.map(async file => {
         try {
             const content = await fs.readFile(file, {encoding: 'utf-8'});
-            const {statusCode, method, domain, timing, date, port} = JSON.parse(content);
+            const {date, domain, method, port, statusCode, timing} = JSON.parse(content);
 
             await fs.unlink(file);
 

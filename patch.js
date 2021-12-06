@@ -1,12 +1,13 @@
-'use strict';
+import utils from '@k03mad/utils';
+import chalk from 'chalk';
+import fs from 'node:fs/promises';
+import {URL} from 'node:url';
 
-const path = require('path');
-const {array, print} = require('@k03mad/utils');
-const {dim, blue} = require('colorette');
-const {promises: fs} = require('fs');
+const {blue, dim} = chalk;
+const {array, print} = utils;
 
 const patches = {
-    '/node_modules/node-routeros/dist/connector/Receiver.js': {
+    './node_modules/node-routeros/dist/connector/Receiver.js': {
         original: "throw new RosException_1.RosException('UNREGISTEREDTAG');",
         patch: "throw 'UNREGISTEREDTAG';",
     },
@@ -17,8 +18,8 @@ const patches = {
         await Promise.all(Object.entries(patches).map(async ([file, strings]) => {
             console.log(dim(`patch\n${blue(file)}`));
 
-            const filePath = path.join(__dirname, file);
-            let fileContent = await fs.readFile(filePath, {encoding: 'utf-8'});
+            const {pathname} = new URL(file, import.meta.url);
+            let fileContent = await fs.readFile(pathname, {encoding: 'utf-8'});
             const errors = [];
 
             array.convert(strings).forEach(({original, patch}) => {
@@ -33,7 +34,7 @@ const patches = {
                 throw new Error(errors.join('\n'));
             }
 
-            await fs.writeFile(filePath, fileContent);
+            await fs.writeFile(pathname, fileContent);
         }));
     } catch (err) {
         print.ex(err, {before: 'node_modules patch', exit: true});

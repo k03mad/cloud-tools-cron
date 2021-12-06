@@ -1,6 +1,4 @@
-'use strict';
-
-module.exports = {
+export default {
     cloud: {
         is: process.env.IS_CLOUD,
         domain: process.env.CLOUD_DOMAIN,

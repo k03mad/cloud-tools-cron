@@ -1,12 +1,12 @@
-'use strict';
+import utils from '@k03mad/utils';
+import asTable from 'as-table';
 
-const asTable = require('as-table');
-const {influx, tinkoff} = require('@k03mad/utils');
+const {influx, tinkoff} = utils;
 
 const tgPreviousYield = {};
 
 /***/
-module.exports = async () => {
+export default async () => {
     const instrumentTypes = new Set(['Stock', 'Etf']);
     const tickerUsdToRub = 'USD000UTSTOM';
 
@@ -37,8 +37,8 @@ module.exports = async () => {
         .value;
 
     portfolio.forEach(({
-        instrumentType, ticker, balance,
-        expectedYield, averagePositionPrice,
+        averagePositionPrice, balance, expectedYield,
+        instrumentType, ticker,
     }) => {
         if (instrumentTypes.has(instrumentType)) {
 

@@ -1,9 +1,9 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const {syncthing, array, influx, folder} = require('@k03mad/utils');
+const {array, folder, influx, syncthing} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const bytes = {};
     const addresses = {};
 

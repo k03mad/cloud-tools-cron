@@ -1,10 +1,11 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const env = require('../../env');
-const {influx, lastfm} = require('@k03mad/utils');
+import env from '../../env.js';
+
+const {influx, lastfm} = utils;
 
 /***/
-module.exports = async () => {
+export default async () => {
     const recentTracksGetSeconds = 3600;
 
     const artistscount = {};

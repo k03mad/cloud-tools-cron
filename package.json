@@ -8,25 +8,28 @@
   "repository": "k03mad/cloud-tools-cron",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=17"
   },
   "dependencies": {
     "@k03mad/utils": "20.5.0",
     "as-table": "1.0.55",
-    "colorette": "2.0.16",
-    "fast-glob": "3.2.7",
+    "chalk": "5.0.0",
+    "globby": "12.0.2",
     "hasha": "5.2.2",
     "lodash": "4.17.21",
-    "oui": "11.0.94",
+    "oui": "11.0.95",
     "recron": "1.1.1"
   },
   "devDependencies": {
-    "@k03mad/eslint-config": "9.0.0",
-    "eslint": "8.3.0",
-    "eslint-plugin-jsdoc": "37.0.3",
+    "@k03mad/eslint-config": "10.0.15",
+    "eslint": "8.4.0",
+    "eslint-plugin-import": "2.25.3",
+    "eslint-plugin-jsdoc": "37.1.0",
     "eslint-plugin-node": "11.1.0",
-    "eslint-plugin-sort-requires": "2.1.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
+    "eslint-plugin-sort-destructure-keys": "1.4.0",
     "eslint-plugin-unicorn": "39.0.0",
     "husky": "7.0.4"
   },

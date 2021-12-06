@@ -1,8 +1,8 @@
-'use strict';
+import utils from '@k03mad/utils';
 
-const env = require('../../env');
-const {print, influx, promise} = require('@k03mad/utils');
+import env from '../../env.js';
 
+const {influx, print, promise} = utils;
 const tries = env.cloud.is ? 3 : 1;
 
 /**
@@ -12,7 +12,7 @@ const tries = env.cloud.is ? 3 : 1;
  * @param {string} opts.period
  * @returns {Promise|null}
  */
-module.exports = async ({task, name, period = '—'}) => {
+export default async ({name, period = '—', task}) => {
     for (let i = 1; i <= tries; i++) {
         try {
             const time = Date.now();

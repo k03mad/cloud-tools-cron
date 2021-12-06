@@ -1,19 +1,18 @@
-'use strict';
+import * as tasks from '../tasks/_index.js';
 
 /**
- * @param {object} tasks
+ * @param {Array} names
  * @param {string} type
  * @returns {object}
  */
-module.exports = (tasks, type = 'minute') => {
+export default (names, type = 'minute') => {
     const output = {};
 
-    const tasksArr = Object.entries(tasks);
-    const valuesForTask = Math.floor(60 / tasksArr.length);
+    const valuesForTask = Math.floor(60 / names.length);
 
-    tasksArr.forEach(([key, value], i) => {
+    names.forEach((name, i) => {
         const cron = `${i * valuesForTask} */1 ${type === 'minute' ? '* * * *' : '* * *'}`;
-        output[cron] = {[key]: value};
+        output[cron] = {[name]: tasks[name.replace('-', '_')]};
     });
 
     return output;
