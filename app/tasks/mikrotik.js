@@ -149,8 +149,8 @@ export default async () => {
         dnsCache: dnsCache.length,
     };
 
-    const scriptsRun = array.merge(scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
-    const schedulerRun = array.merge(scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
+    const scriptsRun = Object.assign(...scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
+    const schedulerRun = Object.assign(...scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
 
     await influx.write([
         {meas: 'mikrotik-clients-signal', values: clientsSignal},
