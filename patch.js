@@ -1,4 +1,4 @@
-import utils from '@k03mad/utils';
+import utils from '@k03mad/util';
 import chalk from 'chalk';
 import fs from 'node:fs/promises';
 import {URL} from 'node:url';

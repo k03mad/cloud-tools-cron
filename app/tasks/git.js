@@ -1,4 +1,4 @@
-import utils from '@k03mad/utils';
+import utils from '@k03mad/util';
 import fs from 'node:fs/promises';
 
 import env from '../../env.js';

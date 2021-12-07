@@ -1,7 +1,7 @@
-import utils from '@k03mad/utils';
+import utils from '@k03mad/util';
 import oui from 'oui';
 
-const {array, influx, ip, mikrotik, object} = utils;
+const {array, influx, ip, mikrotik, object, re} = utils;
 
 const fillFirewallData = (data, fill) => {
     let lastComment;
@@ -112,7 +112,7 @@ export default async () => {
     await Promise.all(firewallConnections.map(async elem => {
         const address = elem['dst-address'].replace(/:.+/, '');
 
-        if (!ip.isLocal(address) && !address?.includes('255')) {
+        if (!re.isLocalIp(address) && !address?.includes('255')) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
 
             if (bytes > connectionsMinBytes) {
@@ -149,8 +149,8 @@ export default async () => {
         dnsCache: dnsCache.length,
     };
 
-    const scriptsRun = array.mergeCol(scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
-    const schedulerRun = array.mergeCol(scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
+    const scriptsRun = array.merge(scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
+    const schedulerRun = array.merge(scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
 
     await influx.write([
         {meas: 'mikrotik-clients-signal', values: clientsSignal},

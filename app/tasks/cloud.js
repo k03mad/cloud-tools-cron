@@ -1,4 +1,4 @@
-import utils from '@k03mad/utils';
+import utils from '@k03mad/util';
 import _ from 'lodash';
 
 const {influx, shell} = utils;
