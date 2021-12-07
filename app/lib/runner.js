@@ -31,6 +31,7 @@ export default async ({name, period = '—', task}) => {
                 print.ex(err, {
                     before: `${name} :: ${period} :: ${i}/${tries}`,
                     afterline: false,
+                    full: true,
                 });
 
                 errCount = 1;
@@ -42,9 +43,11 @@ export default async ({name, period = '—', task}) => {
         }
     }
 
-    try {
-        await influx.write({meas: 'cloud-crons-errors', values: {[name]: errCount}});
-    } catch (err_) {
-        print.ex(err_);
+    if (env.influx.request) {
+        try {
+            await influx.write({meas: 'cloud-crons-errors', values: {[name]: errCount}});
+        } catch (err_) {
+            print.ex(err_);
+        }
     }
 };

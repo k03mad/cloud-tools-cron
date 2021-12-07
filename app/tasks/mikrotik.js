@@ -42,38 +42,41 @@ export default async () => {
         wifiClients,
         dhcpLeases,
         dnsCache,
-        adressList,
+        addressList,
         firewallConnections,
         firewallFilter,
         firewallNat,
         firewallRaw,
-        [, updates],
-        [usage],
+        updates,
+        usage,
         scheduler,
         scripts,
 
-    ] = await mikrotik.write([
-        ['/interface/print'],
-        ['/interface/wireless/registration-table/print'],
-        ['/ip/dhcp-server/lease/print'],
-        ['/ip/dns/cache/print'],
-        ['/ip/firewall/address-list/print'],
-        ['/ip/firewall/connection/print'],
-        ['/ip/firewall/filter/print'],
-        ['/ip/firewall/nat/print'],
-        ['/ip/firewall/raw/print'],
-        ['/system/package/update/check-for-updates'],
-        ['/system/resource/print'],
-        ['/system/scheduler/print'],
-        ['/system/script/print'],
-    ]);
+    ] = await Promise.all([
+        'interface',
+        'interface/wireless/registration-table',
+        'ip/dhcp-server/lease',
+        'ip/dns/cache',
+        'ip/firewall/address-list',
+        'ip/firewall/connection',
+        'ip/firewall/filter',
+        'ip/firewall/nat',
+        'ip/firewall/raw',
+        'system/package/update',
+        'system/resource',
+        'system/scheduler',
+        'system/script',
+    ].map(elem => mikrotik.get(elem)));
 
     fillFirewallData(firewallNat, natTraffic);
     fillFirewallData(firewallFilter, filterTraffic);
     fillFirewallData(firewallRaw, rawTraffic);
 
-    const monitorTraffic = await mikrotik.write(
-        interfaces.map(elem => ['/interface/monitor-traffic', `=interface=${elem.name}`, '=once']),
+    const monitorTraffic = await Promise.all(
+        interfaces.map(elem => mikrotik.post('interface/monitor-traffic', {
+            interface: elem.name,
+            once: true,
+        })),
     );
 
     monitorTraffic.forEach(([obj]) => {
@@ -157,7 +160,7 @@ export default async () => {
         {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
         {meas: 'mikrotik-usage', values: health},
         {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
-        {meas: 'mikrotik-adress-list', values: array.count(adressList.map(elem => elem.list))},
+        {meas: 'mikrotik-address-list', values: array.count(addressList.map(elem => elem.list))},
     ]);
 
     await influx.append([
