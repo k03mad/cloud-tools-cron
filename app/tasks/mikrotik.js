@@ -48,25 +48,24 @@ export default async () => {
         firewallNat,
         firewallRaw,
         updates,
-        usage,
+        [usage],
         scheduler,
         scripts,
-
     ] = await Promise.all([
-        'interface',
-        'interface/wireless/registration-table',
-        'ip/dhcp-server/lease',
-        'ip/dns/cache',
-        'ip/firewall/address-list',
-        'ip/firewall/connection',
-        'ip/firewall/filter',
-        'ip/firewall/nat',
-        'ip/firewall/raw',
-        'system/package/update',
-        'system/resource',
-        'system/scheduler',
-        'system/script',
-    ].map(elem => mikrotik.get(elem)));
+        '/interface/print',
+        '/interface/wireless/registration-table/print',
+        '/ip/dhcp-server/lease/print',
+        '/ip/dns/cache/print',
+        '/ip/firewall/address-list/print',
+        '/ip/firewall/connection/print',
+        '/ip/firewall/filter/print',
+        '/ip/firewall/nat/print',
+        '/ip/firewall/raw/print',
+        '/system/package/update/print',
+        '/system/resource/print',
+        '/system/scheduler/print',
+        '/system/script/print',
+    ].map(elem => mikrotik.post(elem)));
 
     fillFirewallData(firewallNat, natTraffic);
     fillFirewallData(firewallFilter, filterTraffic);
