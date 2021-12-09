@@ -47,7 +47,7 @@ export default async () => {
         firewallFilter,
         firewallNat,
         firewallRaw,
-        updates,
+        [updates],
         [usage],
         scheduler,
         scripts,
