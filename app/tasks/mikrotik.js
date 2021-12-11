@@ -37,6 +37,8 @@ export default async () => {
     const rawTraffic = {};
     const connectionsDomains = {};
 
+    const [usage] = await mikrotik.post('/system/resource/print');
+
     const [
         interfaces,
         wifiClients,
@@ -48,7 +50,6 @@ export default async () => {
         firewallNat,
         firewallRaw,
         [updates],
-        [usage],
         scheduler,
         scripts,
     ] = await Promise.all([
@@ -62,7 +63,6 @@ export default async () => {
         '/ip/firewall/nat/print',
         '/ip/firewall/raw/print',
         '/system/package/update/print',
-        '/system/resource/print',
         '/system/scheduler/print',
         '/system/script/print',
     ].map(elem => mikrotik.post(elem)));
@@ -72,8 +72,8 @@ export default async () => {
     fillFirewallData(firewallRaw, rawTraffic);
 
     const monitorTraffic = await Promise.all(
-        interfaces.map(elem => mikrotik.post('interface/monitor-traffic', {
-            interface: elem.name,
+        interfaces.map(({name}) => mikrotik.post('interface/monitor-traffic', {
+            interface: name,
             once: true,
         })),
     );

@@ -14,13 +14,6 @@ export default async () => {
         certbot: 'sudo certbot certificates',
         pkg: "dpkg-query -l | grep -c '^ii'",
         ports: 'sudo lsof -i -P -n | grep LISTEN',
-        dns: {
-            cloudflare: 'dig example.com @1.1.1.1',
-            google: 'dig example.com @8.8.8.8',
-            yandex: 'dig example.com @77.88.8.8',
-            adguard: 'dig example.com @94.140.14.14',
-            default: 'dig example.com',
-        },
     };
 
     const re = {
@@ -38,15 +31,13 @@ export default async () => {
         },
     };
 
-    await Promise.all(Object.entries(cmd).map(async ([key, value]) => {
-        if (typeof value === 'object') {
-            await Promise.all(Object.entries(value).map(async ([nestedKey, nestedValue]) => {
-                cmd[key][nestedKey] = await shell.run(nestedValue);
-            }));
-        } else {
-            cmd[key] = await shell.run(value);
-        }
-    }));
+    await Promise.all(
+        Object
+            .entries(cmd)
+            .map(async ([key, value]) => {
+                cmd[key] = await shell.run(value);
+            }),
+    );
 
     // uptime
     cmd.uptime = cmd.uptime
@@ -128,7 +119,6 @@ export default async () => {
         {meas: 'cloud-usage-certs', values: cmd.certbot},
         {meas: 'cloud-usage-cpu', values: {load: cmd.load}},
         {meas: 'cloud-usage-disk', values: cmd.df},
-        {meas: 'cloud-usage-dns', values: cmd.dns},
         {meas: 'cloud-usage-memory', values: cmd.mem},
         {meas: 'cloud-usage-packages', values: {pkg: Number(cmd.pkg)}},
         {meas: 'cloud-usage-ports', values: cmd.ports},
