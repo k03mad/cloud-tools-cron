@@ -20,7 +20,6 @@ export default async () => {
         load: /load average(s)?: (\d[,.]\d\d)/,
         disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
         mem: /Mem: +(?<total>\d+) +(?<used>\d+) +(?<free>\d+) +(?<shared>\d+) +(?<buff>\d+) +(?<available>\d+)/,
-        dns: /Query time: (\d+) msec/,
         ports: {
             listen: /^(?<name>\S+)\s.+:(?<port>\d+) \(LISTEN\)/,
             sanitize: /\\x\d+\//g,
@@ -84,11 +83,6 @@ export default async () => {
                 cmd.mem = {[key]: Number(value)};
             }
         });
-
-    // dns
-    Object.entries(cmd.dns).forEach(([key, value]) => {
-        cmd.dns[key] = Number(value.match(re.dns)[1]);
-    });
 
     // ports
     const tempPorts = {};
