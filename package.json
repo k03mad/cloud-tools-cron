@@ -19,7 +19,7 @@
     "globby": "12.0.2",
     "hasha": "5.2.2",
     "lodash": "4.17.21",
-    "oui": "11.0.95",
+    "oui": "11.0.96",
     "recron": "1.1.1"
   },
   "devDependencies": {
