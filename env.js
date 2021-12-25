@@ -14,8 +14,8 @@ export default {
     },
     mikrotik: {
         domain: process.env.MIKROTIK_DOMAIN,
-        ovpn: {
-            port: process.env.MIKROTIK_OVPN_PORT,
+        vpn: {
+            port: process.env.MIKROTIK_VPN_PORT,
         },
     },
     nextdns: {

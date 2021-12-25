@@ -9,6 +9,6 @@ const {cloud, mikrotik, nextdns} = env;
 export default () => pinger.check([
     {domain: cloud.domain, port: cloud.magnet.port},
     {domain: cloud.domain, port: cloud.grafana.port},
-    {domain: mikrotik.domain, port: mikrotik.ovpn.port},
+    {domain: mikrotik.domain, port: mikrotik.vpn.port},
     {domain: nextdns.domain},
 ]);
