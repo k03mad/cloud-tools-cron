@@ -13,9 +13,9 @@ export default {
         users: process.env.LASTFM_USERS,
     },
     mikrotik: {
-        domain: process.env.MIKROTIK_DOMAIN,
-        vpn: {
-            port: process.env.MIKROTIK_VPN_PORT,
+        host: process.env.MIKROTIK_HOST,
+        port: {
+            api: process.env.MIKROTIK_API_PORT,
         },
     },
     nextdns: {
