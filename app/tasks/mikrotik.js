@@ -28,17 +28,6 @@ export default async () => {
     // 1 MB
     const connectionsMinBytes = 1_048_576;
 
-    const clientsSignal = {};
-    const clientsTraffic = {};
-    const interfacesSpeed = {};
-    const interfacesTraffic = {};
-    const wireguardTraffic = {};
-    const natTraffic = {};
-    const filterTraffic = {};
-    const rawTraffic = {};
-    const connectionsDomains = {};
-    const dnsCacheTypes = {};
-
     const [usage] = await mikrotik.post('/system/resource/print');
 
     const [
@@ -78,9 +67,17 @@ export default async () => {
         })),
     );
 
+    const natTraffic = {};
+    const filterTraffic = {};
+    const rawTraffic = {};
+
     fillFirewallData(firewallNat, natTraffic);
     fillFirewallData(firewallFilter, filterTraffic);
     fillFirewallData(firewallRaw, rawTraffic);
+
+    const interfacesSpeed = {};
+    const interfacesTraffic = {};
+    const wireguardTraffic = {};
 
     monitorTraffic.forEach(([obj]) => {
         interfacesSpeed[obj.name] = Number(obj['rx-bits-per-second']) + Number(obj['tx-bits-per-second']);
@@ -94,6 +91,10 @@ export default async () => {
         wireguardTraffic[elem.comment] = Number(elem.rx) + Number(elem.tx);
     });
 
+    const clientsSignal = {};
+    const clientsTraffic = {};
+    const clientsIpToName = {};
+
     wifiClients.forEach(elem => {
         const mac = elem['mac-address'];
         const client = dhcpLeases.find(lease => lease['mac-address'] === mac);
@@ -101,6 +102,7 @@ export default async () => {
         let key;
 
         if (client && client.comment) {
+            clientsIpToName[client['active-address']] = client.comment;
             key = client.comment;
         } else {
             const [vendor] = oui(mac).split('\n')[0].match(/^([\w-]+( \w+)?)/);
@@ -111,15 +113,26 @@ export default async () => {
         clientsSignal[key] = Number(elem['signal-strength'].replace(/@.+/, ''));
     });
 
-    await Promise.all(firewallConnections.map(async elem => {
-        const address = elem['dst-address'].replace(/:.+/, '');
+    const connectionsPorts = {};
+    const connectionsProtocols = {};
+    const connectionsSrc = {};
+    const connectionsDomains = {};
 
-        if (!re.isLocalIp(address) && !address?.includes('255')) {
+    await Promise.all(firewallConnections.map(async elem => {
+        const [dstAddress, port] = elem['dst-address'].split(':');
+        const [srcAddress] = elem['src-address'].split(':');
+
+        object.count(connectionsProtocols, elem.protocol);
+        object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
+
+        port && object.count(connectionsPorts, port);
+
+        if (!re.isLocalIp(dstAddress) && !dstAddress?.includes('255')) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
 
             if (bytes > connectionsMinBytes) {
                 try {
-                    const {hostname} = await ip.info(address);
+                    const {hostname} = await ip.info(dstAddress);
 
                     if (hostname) {
                         const domain = hostname.split('.').slice(-2).join('.');
@@ -150,14 +163,18 @@ export default async () => {
         updates: `${updates['installed-version']}/${updates['latest-version']}`,
     };
 
-    dnsCache.forEach(elem => object.count(dnsCacheTypes, elem.type));
-
     const scriptsRun = Object.assign(...scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
     const schedulerRun = Object.assign(...scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
+
+    const dnsCacheTypes = {};
+    dnsCache.forEach(elem => object.count(dnsCacheTypes, elem.type));
 
     await influx.write([
         {meas: 'mikrotik-address-list', values: array.count(addressList.map(elem => elem.list))},
         {meas: 'mikrotik-clients-signal', values: clientsSignal},
+        {meas: 'mikrotik-connections-ports', values: connectionsPorts},
+        {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
+        {meas: 'mikrotik-connections-src', values: connectionsSrc},
         {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
         {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
         {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
