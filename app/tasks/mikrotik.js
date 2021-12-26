@@ -32,6 +32,7 @@ export default async () => {
     const clientsTraffic = {};
     const interfacesSpeed = {};
     const interfacesTraffic = {};
+    const wireguardTraffic = {};
     const natTraffic = {};
     const filterTraffic = {};
     const rawTraffic = {};
@@ -42,6 +43,7 @@ export default async () => {
     const [
         interfaces,
         wifiClients,
+        wireguard,
         dhcpLeases,
         dnsCache,
         addressList,
@@ -55,6 +57,7 @@ export default async () => {
     ] = await Promise.all([
         '/interface/print',
         '/interface/wireless/registration-table/print',
+        '/interface/wireguard/peers/print',
         '/ip/dhcp-server/lease/print',
         '/ip/dns/cache/print',
         '/ip/firewall/address-list/print',
@@ -79,19 +82,15 @@ export default async () => {
     );
 
     monitorTraffic.forEach(([obj]) => {
-        interfacesSpeed[`${obj.name}_rx`] = Number(obj['rx-bits-per-second']);
-        interfacesSpeed[`${obj.name}_tx`] = Number(obj['tx-bits-per-second']);
+        interfacesSpeed[obj.name] = Number(obj['rx-bits-per-second']) + Number(obj['tx-bits-per-second']);
     });
 
     interfaces.forEach(elem => {
-        interfacesTraffic[`${elem.name}_rx`] = Number(elem['rx-byte']);
-        interfacesTraffic[`${elem.name}_tx`] = Number(elem['tx-byte']);
+        interfacesTraffic[elem.name] = Number(elem['rx-byte']) + Number(elem['tx-byte']);
+    });
 
-        const sum = Number(elem['rx-byte']) + Number(elem['tx-byte']);
-
-        if (elem.name.includes('ether') && sum > 0) {
-            clientsTraffic[elem.name] = sum;
-        }
+    wireguard.forEach(elem => {
+        wireguardTraffic[elem.comment] = Number(elem.rx) + Number(elem.tx);
     });
 
     wifiClients.forEach(elem => {
@@ -165,9 +164,10 @@ export default async () => {
     await influx.append([
         {meas: 'mikrotik-clients-traffic', values: clientsTraffic},
         {meas: 'mikrotik-connections-traffic', values: connectionsDomains},
+        {meas: 'mikrotik-filter-traffic', values: filterTraffic},
         {meas: 'mikrotik-interfaces-traffic', values: interfacesTraffic},
         {meas: 'mikrotik-nat-traffic', values: natTraffic},
-        {meas: 'mikrotik-filter-traffic', values: filterTraffic},
         {meas: 'mikrotik-raw-traffic', values: rawTraffic},
+        {meas: 'mikrotik-wireguard-traffic', values: wireguardTraffic},
     ]);
 };
