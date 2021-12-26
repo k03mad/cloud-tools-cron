@@ -1,7 +1,5 @@
-import utils from '@k03mad/util';
+import {influx, tinkoff} from '@k03mad/util';
 import asTable from 'as-table';
-
-const {influx, tinkoff} = utils;
 
 const tgPreviousYield = {};
 

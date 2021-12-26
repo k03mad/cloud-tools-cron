@@ -1,7 +1,5 @@
-import utils from '@k03mad/util';
+import {influx, shell} from '@k03mad/util';
 import _ from 'lodash';
-
-const {influx, shell} = utils;
 
 /***/
 export default async () => {

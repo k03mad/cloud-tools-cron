@@ -1,7 +1,5 @@
-import utils from '@k03mad/util';
+import {array, influx, ip, mikrotik, object, re} from '@k03mad/util';
 import oui from 'oui';
-
-const {array, influx, ip, mikrotik, object, re} = utils;
 
 const fillFirewallData = (data, fill) => {
     let lastComment;
@@ -166,28 +164,32 @@ export default async () => {
     const scriptsRun = Object.assign(...scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
     const schedulerRun = Object.assign(...scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
 
+    const addressListsCount = array.count(addressList.map(elem => elem.list));
+
     const dnsCacheTypes = {};
     dnsCache.forEach(elem => object.count(dnsCacheTypes, elem.type));
 
-    await influx.write([
-        {meas: 'mikrotik-address-list', values: array.count(addressList.map(elem => elem.list))},
-        {meas: 'mikrotik-clients-signal', values: clientsSignal},
-        {meas: 'mikrotik-connections-ports', values: connectionsPorts},
-        {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
-        {meas: 'mikrotik-connections-src', values: connectionsSrc},
-        {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
-        {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
-        {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
-        {meas: 'mikrotik-usage', values: health},
-    ]);
+    await Promise.all([
+        influx.write([
+            {meas: 'mikrotik-address-list', values: addressListsCount},
+            {meas: 'mikrotik-clients-signal', values: clientsSignal},
+            {meas: 'mikrotik-connections-ports', values: connectionsPorts},
+            {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
+            {meas: 'mikrotik-connections-src', values: connectionsSrc},
+            {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
+            {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
+            {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
+            {meas: 'mikrotik-usage', values: health},
+        ]),
 
-    await influx.append([
-        {meas: 'mikrotik-clients-traffic', values: clientsTraffic},
-        {meas: 'mikrotik-connections-traffic', values: connectionsDomains},
-        {meas: 'mikrotik-filter-traffic', values: filterTraffic},
-        {meas: 'mikrotik-interfaces-traffic', values: interfacesTraffic},
-        {meas: 'mikrotik-nat-traffic', values: natTraffic},
-        {meas: 'mikrotik-raw-traffic', values: rawTraffic},
-        {meas: 'mikrotik-wireguard-traffic', values: wireguardTraffic},
+        influx.append([
+            {meas: 'mikrotik-clients-traffic', values: clientsTraffic},
+            {meas: 'mikrotik-connections-traffic', values: connectionsDomains},
+            {meas: 'mikrotik-filter-traffic', values: filterTraffic},
+            {meas: 'mikrotik-interfaces-traffic', values: interfacesTraffic},
+            {meas: 'mikrotik-nat-traffic', values: natTraffic},
+            {meas: 'mikrotik-raw-traffic', values: rawTraffic},
+            {meas: 'mikrotik-wireguard-traffic', values: wireguardTraffic},
+        ]),
     ]);
 };

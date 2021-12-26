@@ -1,6 +1,4 @@
-import utils from '@k03mad/util';
-
-const {influx, myshows} = utils;
+import {influx, myshows} from '@k03mad/util';
 
 /** @returns {Promise} */
 export default async () => {

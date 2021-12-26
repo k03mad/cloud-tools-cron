@@ -1,11 +1,9 @@
-import utils from '@k03mad/util';
+import {influx, shell} from '@k03mad/util';
 import {globby} from 'globby';
 import hasha from 'hasha';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-
-const {influx, shell} = utils;
 
 /***/
 export default async () => {

@@ -1,6 +1,4 @@
-import utils from '@k03mad/util';
-
-const {folder, influx} = utils;
+import {folder, influx} from '@k03mad/util';
 
 /***/
 export default async () => {

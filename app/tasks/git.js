@@ -1,9 +1,7 @@
-import utils from '@k03mad/util';
+import {folder, influx, shell} from '@k03mad/util';
 import fs from 'node:fs/promises';
 
 import env from '../../env.js';
-
-const {folder, influx, shell} = utils;
 
 /***/
 export default async () => {

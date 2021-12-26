@@ -1,6 +1,4 @@
-import utils from '@k03mad/util';
-
-const {cloud, influx, ip, next, object} = utils;
+import {cloud, influx, ip, next, object} from '@k03mad/util';
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},

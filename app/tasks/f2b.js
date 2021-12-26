@@ -1,6 +1,4 @@
-import utils from '@k03mad/util';
-
-const {influx, shell} = utils;
+import {influx, shell} from '@k03mad/util';
 
 /***/
 export default async () => {

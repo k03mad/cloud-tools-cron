@@ -1,8 +1,6 @@
-import utils from '@k03mad/util';
+import {influx, lastfm} from '@k03mad/util';
 
 import env from '../../env.js';
-
-const {influx, lastfm} = utils;
 
 /***/
 export default async () => {

@@ -1,8 +1,7 @@
-import utils from '@k03mad/util';
+import {influx, print, promise} from '@k03mad/util';
 
 import env from '../../env.js';
 
-const {influx, print, promise} = utils;
 const tries = env.cloud.is ? 3 : 1;
 
 /**

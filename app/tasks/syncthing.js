@@ -1,6 +1,4 @@
-import utils from '@k03mad/util';
-
-const {array, folder, influx, syncthing} = utils;
+import {array, folder, influx, syncthing} from '@k03mad/util';
 
 /***/
 export default async () => {

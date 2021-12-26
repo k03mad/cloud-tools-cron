@@ -1,8 +1,7 @@
-import utils from '@k03mad/util';
+import {pinger} from '@k03mad/util';
 
 import env from '../../env.js';
 
-const {pinger} = utils;
 const {cloud, mikrotik, nextdns} = env;
 
 /** @returns {Promise} */
