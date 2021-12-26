@@ -60,7 +60,7 @@ export default async () => {
         '/interface/wireless/registration-table/print',
         '/interface/wireguard/peers/print',
         '/ip/dhcp-server/lease/print',
-        '/ip/dns/cache/print',
+        '/ip/dns/cache/all/print',
         '/ip/firewall/address-list/print',
         '/ip/firewall/connection/print',
         '/ip/firewall/filter/print',
