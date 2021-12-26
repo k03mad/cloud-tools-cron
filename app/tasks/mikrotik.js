@@ -37,6 +37,7 @@ export default async () => {
     const filterTraffic = {};
     const rawTraffic = {};
     const connectionsDomains = {};
+    const dnsCacheTypes = {};
 
     const [usage] = await mikrotik.post('/system/resource/print');
 
@@ -70,16 +71,16 @@ export default async () => {
         '/system/script/print',
     ].map(elem => mikrotik.post(elem)));
 
-    fillFirewallData(firewallNat, natTraffic);
-    fillFirewallData(firewallFilter, filterTraffic);
-    fillFirewallData(firewallRaw, rawTraffic);
-
     const monitorTraffic = await Promise.all(
         interfaces.map(({name}) => mikrotik.post('interface/monitor-traffic', {
             interface: name,
             once: true,
         })),
     );
+
+    fillFirewallData(firewallNat, natTraffic);
+    fillFirewallData(firewallFilter, filterTraffic);
+    fillFirewallData(firewallRaw, rawTraffic);
 
     monitorTraffic.forEach(([obj]) => {
         interfacesSpeed[obj.name] = Number(obj['rx-bits-per-second']) + Number(obj['tx-bits-per-second']);
@@ -147,18 +148,20 @@ export default async () => {
         cpuFreq: Number(usage['cpu-frequency']),
         uptime: usage.uptime,
         updates: `${updates['installed-version']}/${updates['latest-version']}`,
-        dnsCache: dnsCache.length,
     };
+
+    dnsCache.forEach(elem => object.count(dnsCacheTypes, elem.type));
 
     const scriptsRun = Object.assign(...scripts.map(elem => ({[elem.name]: Number(elem['run-count'])})));
     const schedulerRun = Object.assign(...scheduler.map(elem => ({[elem.name]: Number(elem['run-count'])})));
 
     await influx.write([
-        {meas: 'mikrotik-clients-signal', values: clientsSignal},
-        {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
-        {meas: 'mikrotik-usage', values: health},
-        {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
         {meas: 'mikrotik-address-list', values: array.count(addressList.map(elem => elem.list))},
+        {meas: 'mikrotik-clients-signal', values: clientsSignal},
+        {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
+        {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
+        {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
+        {meas: 'mikrotik-usage', values: health},
     ]);
 
     await influx.append([
