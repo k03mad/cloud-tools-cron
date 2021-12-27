@@ -93,6 +93,10 @@ export default async () => {
     const clientsTraffic = {};
     const clientsIpToName = {};
 
+    dhcpLeases.forEach(elem => {
+        clientsIpToName[elem['active-address'] || elem.address] = elem.comment;
+    });
+
     wifiClients.forEach(elem => {
         const mac = elem['mac-address'];
         const client = dhcpLeases.find(lease => lease['mac-address'] === mac);
@@ -100,7 +104,6 @@ export default async () => {
         let key;
 
         if (client && client.comment) {
-            clientsIpToName[client['active-address']] = client.comment;
             key = client.comment;
         } else {
             const [vendor] = oui(mac).split('\n')[0].match(/^([\w-]+( \w+)?)/);
