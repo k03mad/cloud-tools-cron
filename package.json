@@ -26,7 +26,7 @@
     "@k03mad/eslint-config": "10.0.17",
     "eslint": "8.5.0",
     "eslint-plugin-import": "2.25.3",
-    "eslint-plugin-jsdoc": "37.4.0",
+    "eslint-plugin-jsdoc": "37.5.0",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-simple-import-sort": "7.0.0",
     "eslint-plugin-sort-destructure-keys": "1.4.0",
