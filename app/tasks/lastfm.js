@@ -5,6 +5,7 @@ import env from '../../env.js';
 /***/
 export default async () => {
     const recentTracksGetSeconds = 3600;
+    const countWithBugAbove = 100;
 
     const artistscount = {};
     const playcount = {};
@@ -76,15 +77,21 @@ export default async () => {
         });
     }));
 
+    const topTracks = Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks}));
+    const topArtists = Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists}));
+
     // lastfm api bug: incorrect data with very large numbers
-    if (!Object.values(recenttracks).some(elem => elem > 100)) {
+    if (
+        !Object.values(recenttracks).some(elem => elem > countWithBugAbove)
+        && !Object.values(topTracks).flatMap(elem => Object.values(elem.values)).some(elem => elem > countWithBugAbove)
+    ) {
 
         await influx.write([
             {meas: 'lastfm-artists-count', values: artistscount},
             {meas: 'lastfm-playcount-total', values: playcount},
             {meas: 'lastfm-playcount-hour', values: recenttracks},
-            ...Object.entries(toptracks).map(([name, tracks]) => ({meas: `lastfm-toptracks-${name}`, values: tracks})),
-            ...Object.entries(topartists).map(([name, artists]) => ({meas: `lastfm-topartists-${name}`, values: artists})),
+            ...topTracks,
+            ...topArtists,
         ]);
 
     }
