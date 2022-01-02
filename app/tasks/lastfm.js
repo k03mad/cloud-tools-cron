@@ -51,8 +51,17 @@ export default async () => {
             playcount[user] = playCount;
         }
 
-        artistscount[user] = Number(getartists.artists['@attr'].total);
-        recenttracks[user] = Number(getrecenttracks.recenttracks['@attr'].total);
+        const artistCount = Number(getartists.artists['@attr'].total);
+
+        if (artistCount > 0) {
+            artistscount[user] = artistCount;
+        }
+
+        const recentCount = Number(getrecenttracks.recenttracks['@attr'].total);
+
+        if (recentCount > 0) {
+            recenttracks[user] = recentCount;
+        }
 
         gettoptracks.toptracks.track.forEach(track => {
             const key = `${track.artist.name} - ${track.name}`;
