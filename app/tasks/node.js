@@ -19,7 +19,7 @@ export default async () => {
 
     const responses = (await Promise.all(reqResponses.map(async file => {
         try {
-            const content = await fs.readFile(file, {encoding: 'utf-8'});
+            const content = await fs.readFile(file);
             const {date, domain, method, port, statusCode, timing} = JSON.parse(content);
 
             await fs.unlink(file);
