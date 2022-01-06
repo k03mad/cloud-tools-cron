@@ -150,9 +150,11 @@ export default async () => {
         }
     }));
 
-const connectionsPorts = Object.entries(connectionsPortsTemp).filter(([key, value]) => {
-return value > 1
-});
+    const connectionsPorts = Object.fromEntries(
+        Object
+            .entries(connectionsPortsTemp)
+            .filter(([, value]) => value > 1),
+    );
 
     const memTotal = Number(usage['total-memory']);
     const hddTotal = Number(usage['total-hdd-space']);
