@@ -114,7 +114,7 @@ export default async () => {
         clientsSignal[key] = Number(elem['signal-strength'].replace(/@.+/, ''));
     });
 
-    const connectionsPorts = {};
+    const connectionsPortsTemp = {};
     const connectionsProtocols = {};
     const connectionsSrc = {};
     const connectionsDomains = {};
@@ -126,7 +126,7 @@ export default async () => {
         object.count(connectionsProtocols, elem.protocol);
         object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
 
-        port && object.count(connectionsPorts, port);
+        port && object.count(connectionsPortsTemp, port);
 
         if (!re.isLocalIp(dstAddress) && !dstAddress?.includes('255')) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
@@ -149,6 +149,10 @@ export default async () => {
             }
         }
     }));
+
+const connectionsPorts = Object.entries(connectionsPortsTemp).filter(([key, value]) => {
+return value > 1
+});
 
     const memTotal = Number(usage['total-memory']);
     const hddTotal = Number(usage['total-hdd-space']);
