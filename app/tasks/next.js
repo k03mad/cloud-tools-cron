@@ -51,7 +51,7 @@ export default async () => {
             'top_domains/resolved',
         ].map(req => next.query({
             path: `analytics/${req}`,
-            searchParams: {from: '-30d', timezoneOffset: '-180', selector: true},
+            searchParams: {from: '-6h', timezoneOffset: '-180', selector: true},
         })),
 
         next.query({path: 'privacy'}),
