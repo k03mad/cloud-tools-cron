@@ -1,4 +1,13 @@
 import {cloud, influx, ip, next, object} from '@k03mad/util';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+
+import env from '../../env.js';
+
+const getCacheFileAbsPath = (file = 'foo') => {
+    const {pathname} = new URL(`../../.devices/${file}`, import.meta.url);
+    return {pathname, dirname: path.dirname(pathname)};
+};
 
 const mapValues = (
     data, {key = 'name', value = 'queries'} = {},
@@ -67,7 +76,9 @@ export default async () => {
     const logsDevice = {};
     const logsIsp = {};
     const logsCity = {};
-    const logsDeviceIsp = {};
+    let logsDeviceIsp = {};
+
+    const cacheDevices = new Set();
 
     const notify = [];
 
@@ -96,13 +107,52 @@ export default async () => {
                 object.count(logsDevice, elem.deviceName);
 
                 const deviceIsp = `${elem.deviceName} :: ${isp}`;
-                const deviceIndex = topDevices.findIndex(device => device.name === elem.deviceName) + 1;
-                logsDeviceIsp[deviceIsp] = deviceIndex;
+                cacheDevices.add(JSON.stringify({device: elem.deviceName, withIsp: deviceIsp}));
             }
         }
     }));
 
+    for (const cached of cacheDevices) {
+        const {device, withIsp} = JSON.parse(cached);
+        const cacheDir = getCacheFileAbsPath().dirname;
+
+        const parsedCacheDevices = [];
+
+        try {
+            const cachedData = await fs.readdir(cacheDir);
+            parsedCacheDevices.push(...cachedData.map(data => {
+                const [name, index] = data.split('_');
+                return [name, Number(index)];
+            }));
+        } catch {
+            await fs.mkdir(cacheDir, {recursive: true});
+            await Promise.all(topDevices.map(
+                (elem, i) => fs.writeFile(getCacheFileAbsPath(`${elem.name}_${++i}`).pathname, ''),
+            ));
+        }
+
+        const found = parsedCacheDevices.find(([name]) => name === device);
+
+        if (found) {
+            [, logsDeviceIsp[withIsp]] = found;
+        } else {
+            let i = 1;
+
+            while (new Set(parsedCacheDevices.map(([, index]) => index)).has(i)) {
+                i++;
+            }
+
+            await fs.writeFile(getCacheFileAbsPath(`${device}_${i}`).pathname, '');
+            logsDeviceIsp[withIsp] = i;
+        }
+    }
+
     logsElementLastTimestamp = logs[0].timestamp;
+
+    if (!env.cloud.is) {
+        console.log('not cloud, skip devices write:', logsDeviceIsp);
+        logsDeviceIsp = {};
+    }
 
     if (notify.length > 0) {
         await cloud.notify({text: notify.join('\n'), parse_mode: ''});
