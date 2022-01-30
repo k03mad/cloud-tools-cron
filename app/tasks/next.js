@@ -47,7 +47,6 @@ export default async () => {
 
     const [
         topRoot,
-        topDevices,
         topDomainsBlocked,
         topDomainsResolved,
         lists,
@@ -55,7 +54,6 @@ export default async () => {
     ] = await Promise.all([
         ...[
             'top_root_domains',
-            'top_devices',
             'top_domains/blocked',
             'top_domains/resolved',
         ].map(req => next.query({
@@ -126,9 +124,6 @@ export default async () => {
             }));
         } catch {
             await fs.mkdir(cacheDir, {recursive: true});
-            await Promise.all(topDevices.map(
-                (elem, i) => fs.writeFile(getCacheFileAbsPath(`${elem.name}_${++i}`).pathname, ''),
-            ));
         }
 
         const found = parsedCacheDevices.find(([name]) => name === device);
