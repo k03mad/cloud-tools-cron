@@ -29,8 +29,7 @@ export default async () => {
         const found = devices.find(elem => elem.deviceID === device);
 
         if (found?.name) {
-            bytes[`${found.name}_in`] = data.inBytesTotal;
-            bytes[`${found.name}_out`] = data.outBytesTotal;
+            bytes[found.name] = data.inBytesTotal + data.outBytesTotal;
         }
     });
 
