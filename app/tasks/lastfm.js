@@ -5,7 +5,11 @@ import env from '../../env.js';
 /***/
 export default async () => {
     const recentTracksGetSeconds = 3600;
-    const countWithBugAbove = 100;
+    const countWithBugAbove = {
+        artists: 150,
+        tracks: 100,
+        recent: 100,
+    };
 
     const artistscount = {};
     const playcount = {};
@@ -87,8 +91,9 @@ export default async () => {
 
     // lastfm api bug: incorrect data with very large numbers
     if (
-        !Object.values(recenttracks).some(elem => elem > countWithBugAbove)
-        && !Object.values(topTracks).flatMap(elem => Object.values(elem.values)).some(elem => elem > countWithBugAbove)
+        !Object.values(recenttracks).some(elem => elem > countWithBugAbove.recent)
+        && !Object.values(topTracks).flatMap(elem => Object.values(elem.values)).some(elem => elem > countWithBugAbove.tracks)
+        && !Object.values(topArtists).flatMap(elem => Object.values(elem.values)).some(elem => elem > countWithBugAbove.artists)
     ) {
 
         await influx.write([
