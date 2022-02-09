@@ -118,6 +118,7 @@ export default async () => {
 
         try {
             const cachedData = await fs.readdir(cacheDir);
+
             parsedCacheDevices.push(...cachedData.map(data => {
                 const [name, index] = data.split('_');
                 return [name, Number(index)];

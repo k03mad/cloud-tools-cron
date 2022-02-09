@@ -5,6 +5,7 @@ import env from '../../env.js';
 /***/
 export default async () => {
     const recentTracksGetSeconds = 3600;
+
     const countWithBugAbove = {
         artists: 150,
         tracks: 100,
