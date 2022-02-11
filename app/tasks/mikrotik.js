@@ -123,6 +123,7 @@ export default async () => {
     const connectionsPorts = {};
     const connectionsProtocols = {};
     const connectionsSrc = {};
+    const connectionsDst = {};
     const connectionsDomains = {};
 
     await Promise.all(firewallConnections.map(async elem => {
@@ -133,6 +134,10 @@ export default async () => {
 
         if (clientsIpToName[srcAddress] || re.isLocalIp(srcAddress)) {
             object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
+        }
+
+        if (clientsIpToName[dstAddress] || re.isLocalIp(dstAddress)) {
+            object.count(connectionsDst, clientsIpToName[dstAddress] || dstAddress);
         }
 
         if (commonPorts.has(Number(port))) {
@@ -190,6 +195,7 @@ export default async () => {
             {meas: 'mikrotik-connections-ports', values: connectionsPorts},
             {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
             {meas: 'mikrotik-connections-src', values: connectionsSrc},
+            {meas: 'mikrotik-connections-dst', values: connectionsDst},
             {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
             {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
             {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
