@@ -26,6 +26,12 @@ export default async () => {
     // 1 MB
     const connectionsMinBytes = 1_048_576;
 
+    const commonPorts = new Set([
+        21, 22, 53, 80,
+        123, 443,
+        8080,
+    ]);
+
     const [usage] = await mikrotik.post('/system/resource/print');
 
     const [
@@ -124,9 +130,14 @@ export default async () => {
         const [srcAddress] = elem['src-address'].split(':');
 
         object.count(connectionsProtocols, elem.protocol);
-        object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
 
-        port && object.count(connectionsPortsTemp, port);
+        if (clientsIpToName[srcAddress] || re.isLocalIp(srcAddress)) {
+            object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
+        }
+
+        if (commonPorts.has(Number(port))) {
+            object.count(connectionsPortsTemp, port);
+        }
 
         if (!re.isLocalIp(dstAddress) && !dstAddress?.includes('255')) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
