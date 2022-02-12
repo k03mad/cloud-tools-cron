@@ -24,7 +24,7 @@ const everyMinuteTasks = [
     'node',
     'pinger',
     'syncthing',
-    'tinkoff',
+    // 'tinkoff',
     'ufw',
 ];
 
