@@ -132,12 +132,12 @@ export default async () => {
 
         object.count(connectionsProtocols, elem.protocol);
 
-        if (clientsIpToName[srcAddress] || re.isLocalIp(srcAddress)) {
-            object.count(connectionsSrc, clientsIpToName[srcAddress] || srcAddress);
+        if (clientsIpToName[srcAddress]) {
+            object.count(connectionsSrc, clientsIpToName[srcAddress]);
         }
 
-        if (clientsIpToName[dstAddress] || re.isLocalIp(dstAddress)) {
-            object.count(connectionsDst, clientsIpToName[dstAddress] || dstAddress);
+        if (clientsIpToName[dstAddress]) {
+            object.count(connectionsDst, clientsIpToName[dstAddress]);
         }
 
         if (commonPorts.has(Number(port))) {
