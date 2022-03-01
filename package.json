@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@k03mad/eslint-config": "10.1.0",
-    "eslint": "8.8.0",
+    "eslint": "8.10.0",
     "eslint-plugin-import": "2.25.4",
     "eslint-plugin-jsdoc": "37.8.0",
     "eslint-plugin-node": "11.1.0",
