@@ -123,7 +123,6 @@ export default async () => {
     const connectionsPorts = {};
     const connectionsProtocols = {};
     const connectionsSrc = {};
-    const connectionsDst = {};
     const connectionsDomains = {};
 
     await Promise.all(firewallConnections.map(async elem => {
@@ -134,10 +133,6 @@ export default async () => {
 
         if (clientsIpToName[srcAddress]) {
             object.count(connectionsSrc, clientsIpToName[srcAddress]);
-        }
-
-        if (clientsIpToName[dstAddress]) {
-            object.count(connectionsDst, clientsIpToName[dstAddress]);
         }
 
         if (commonPorts.has(Number(port))) {
@@ -186,7 +181,21 @@ export default async () => {
     const addressListsCount = array.count(addressList.map(elem => elem.list));
 
     const dnsCacheTypes = {};
-    dnsCache.forEach(elem => object.count(dnsCacheTypes, elem.type));
+    const dnsUnblocked = [];
+
+    dnsCache.forEach(elem => {
+        object.count(dnsCacheTypes, elem.type);
+
+        if (elem.data?.startsWith('10.')) {
+            dnsUnblocked.push(elem.name);
+        }
+    });
+
+    const dnsUnblockedDomains = {};
+
+    dnsUnblocked.sort().forEach((elem, i) => {
+        dnsUnblockedDomains[elem] = i + 1;
+    });
 
     await Promise.all([
         influx.write([
@@ -195,8 +204,8 @@ export default async () => {
             {meas: 'mikrotik-connections-ports', values: connectionsPorts},
             {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
             {meas: 'mikrotik-connections-src', values: connectionsSrc},
-            {meas: 'mikrotik-connections-dst', values: connectionsDst},
             {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
+            {meas: 'mikrotik-dns-unblocked', values: dnsUnblockedDomains},
             {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
             {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
             {meas: 'mikrotik-usage', values: health},
