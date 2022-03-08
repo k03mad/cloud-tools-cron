@@ -30,7 +30,6 @@ export default async ({name, period = '—', task}) => {
                 print.ex(err, {
                     before: `${name} :: ${period} :: ${i}/${tries}`,
                     afterline: false,
-                    full: true,
                 });
 
                 errCount = 1;
