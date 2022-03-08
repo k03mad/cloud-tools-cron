@@ -11,23 +11,18 @@ export default async () => {
             },
             filters: {
                 banks: ['tcs'],
-                showUnavailable: true,
+                showUnavailable: false,
                 currencies: ['USD'],
-                amounts: [{currency: 'USD', amount: 1000}],
+                amounts: [{currency: 'USD', amount: 100}],
             },
             zoom: 13,
         },
     });
 
     const atm = body.payload.clusters
-        .flatMap(cluster => cluster.points.map(point => {
-            if (point.available) {
-                return `${point.address.replace(/\s{2,}/g, '')} ($${point.limits.find(elem => elem.currency === 'USD').amount})`;
-            }
-
-            return null;
-        }))
-        .filter(Boolean)
+        .flatMap(cluster => cluster.points
+            .map(({address, limits}) => `$${limits.find(({currency}) => currency === 'USD').amount} :: ${address.replace(/\s{2,}/g, '')}`),
+        )
         .map((elem, i) => `${i + 1}. ${elem}`)
         .join('\n');
 
