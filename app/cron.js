@@ -25,6 +25,7 @@ const everyMinuteTasks = [
     'pinger',
     'syncthing',
     // 'tinkoff',
+    'tinkoff-atm',
     'ufw',
 ];
 
