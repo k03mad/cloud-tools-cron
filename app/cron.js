@@ -10,8 +10,6 @@ const everyHourTasks = [
     'apt',
     'git',
     'myshows',
-    'magnet-shows',
-    'magnet-films',
 ];
 
 const everyMinuteTasks = [
@@ -29,9 +27,15 @@ const everyMinuteTasks = [
     'ufw',
 ];
 
+const magnetTasks = [
+    ['magnet-shows', 'magnet-films'],
+    {cronString: '0 3 * * *'},
+];
+
 const tasks = {
-    ...generateCron(everyMinuteTasks),
-    ...generateCron(everyHourTasks, 'hour'),
+    ...generateCron(...magnetTasks),
+    ...generateCron(everyMinuteTasks, {everyMinute: true}),
+    ...generateCron(everyHourTasks, {everyHour: true}),
 };
 
 for (const [period, value] of Object.entries(tasks)) {
