@@ -13,14 +13,20 @@ export default async () => {
                 banks: ['tcs'],
                 showUnavailable: true,
                 currencies: ['USD'],
-                amounts: [{currency: 'USD', amount: 4000}],
+                amounts: [{currency: 'USD', amount: 1000}],
             },
             zoom: 13,
         },
     });
 
     const atm = body.payload.clusters
-        .flatMap(cluster => cluster.points.map(point => point.address))
+        .flatMap(cluster => cluster.points.map(point => {
+            if (point.available) {
+                return `${point.address} ($${point.limits.find(elem => elem.currency === 'USD').amount})`;
+            }
+
+            return null;
+        }))
         .map((elem, i) => `${i + 1}. ${elem}`)
         .join('\n');
 
