@@ -1,3 +1,5 @@
+import {array} from '@k03mad/util';
+
 import * as tasks from '../tasks/_index.js';
 
 /**
@@ -13,7 +15,7 @@ export default (names, {cronString, everyHour, everyMinute} = {}) => {
 
     const valuesForTask = Math.floor(60 / names.length);
 
-    names.forEach((name, i) => {
+    array.convert(names).forEach((name, i) => {
         let cron;
 
         if (cronString) {

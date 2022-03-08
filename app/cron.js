@@ -27,13 +27,9 @@ const everyMinuteTasks = [
     'ufw',
 ];
 
-const magnetTasks = [
-    ['magnet-shows', 'magnet-films'],
-    {cronString: '0 3 * * *'},
-];
-
 const tasks = {
-    ...generateCron(...magnetTasks),
+    ...generateCron('magnet-shows', {cronString: '30 3 * * *'}),
+    ...generateCron('magnet-films', {cronString: '30 4 * * *'}),
     ...generateCron(everyMinuteTasks, {everyMinute: true}),
     ...generateCron(everyHourTasks, {everyHour: true}),
 };
