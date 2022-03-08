@@ -13,7 +13,7 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/util": "4.4.1",
+    "@k03mad/util": "4.5.0",
     "as-table": "1.0.55",
     "chalk": "5.0.0",
     "globby": "13.1.1",
