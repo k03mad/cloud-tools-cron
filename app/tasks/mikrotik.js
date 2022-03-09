@@ -184,6 +184,10 @@ export default async () => {
     const dnsUnblocked = [];
 
     dnsCache.forEach(elem => {
+        if (!elem.type || elem.type === '(unknown') {
+            elem.type = 'unknown';
+        }
+
         object.count(dnsCacheTypes, elem.type);
 
         if (elem.data?.startsWith('10.')) {
