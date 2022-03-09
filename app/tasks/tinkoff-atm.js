@@ -14,7 +14,7 @@ export default async () => {
             },
             filters: {
                 banks: ['tcs'],
-                showUnavailable: true,
+                showUnavailable: false,
                 currencies: ['USD'],
                 amounts: [{currency: 'USD', amount: 1000}],
             },
