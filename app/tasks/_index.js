@@ -5,8 +5,6 @@ export {default as f2b} from './f2b.js';
 export {default as git} from './git.js';
 export {default as influx} from './influx.js';
 export {default as lastfm} from './lastfm.js';
-export {default as magnet_films} from './magnet-films.js';
-export {default as magnet_shows} from './magnet-shows.js';
 export {default as mikrotik} from './mikrotik.js';
 export {default as myshows} from './myshows.js';
 export {default as next} from './next.js';

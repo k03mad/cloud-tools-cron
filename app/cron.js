@@ -6,13 +6,13 @@ import generateCron from './lib/tasks.js';
 const cron = new Cron();
 cron.start();
 
-const everyHourTasks = [
+const hourTasks = [
     'apt',
     'git',
     'myshows',
 ];
 
-const everyMinuteTasks = [
+const minuteTasks = [
     'cloud',
     'f2b',
     'influx',
@@ -28,10 +28,8 @@ const everyMinuteTasks = [
 ];
 
 const tasks = {
-    ...generateCron('magnet-shows', {cronString: '30 3 * * *'}),
-    ...generateCron('magnet-films', {cronString: '30 4 * * *'}),
-    ...generateCron(everyMinuteTasks, {everyMinute: true}),
-    ...generateCron(everyHourTasks, {everyHour: true}),
+    ...generateCron(minuteTasks, {everyMinute: true}),
+    ...generateCron(hourTasks, {everyHour: true}),
 };
 
 for (const [period, value] of Object.entries(tasks)) {
