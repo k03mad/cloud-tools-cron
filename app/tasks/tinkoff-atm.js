@@ -1,4 +1,7 @@
-import {request, tinkoff} from '@k03mad/util';
+import {array, request, tinkoff} from '@k03mad/util';
+import moment from 'moment';
+
+const getYandexMapSearchUrl = query => `https://yandex.ru/maps/?mode=search&text=${query}`;
 
 /***/
 export default async () => {
@@ -11,7 +14,7 @@ export default async () => {
             },
             filters: {
                 banks: ['tcs'],
-                showUnavailable: false,
+                showUnavailable: true,
                 currencies: ['USD'],
                 amounts: [{currency: 'USD', amount: 1000}],
             },
@@ -21,13 +24,26 @@ export default async () => {
 
     const atm = body.payload.clusters
         .flatMap(cluster => cluster.points
-            .map(({address, limits}) => `$${limits.find(({currency}) => currency === 'USD').amount} :: ${address.replace(/\s{2,}/g, '')}`),
+            .map(point => {
+                const cash = Number(`${point.limits.find(({currency}) => currency === 'USD').amount}`);
+                const address = `${point.address.replace(/\s{2,}/g, '')}`;
+
+                const {closeTime, openTime} = point.workPeriods[moment().format('d')];
+
+                const workTime = `${array.insert([...openTime], 2, ':').join('')}`
+                               + ` — ${array.insert([...closeTime], 2, ':').join('')}`;
+
+                const link = getYandexMapSearchUrl(`${point.location.lat},${point.location.lng}`);
+
+                return {cash, workTime, link, address};
+            }),
         )
-        .map((elem, i) => `${i + 1}. ${elem}`)
-        .join('\n');
+        .map((elem, i, arr) => `\`\`\`\n${arr.length > 1 ? `${i + 1}. ` : ''}`
+            + `$${elem.cash} :: ${elem.workTime}\n\`\`\``
+            + `[${elem.address}](${elem.link})`)
+        .join('\n\n');
 
     if (atm) {
-        const text = `\`\`\`\n${atm}\n\`\`\``;
-        await tinkoff.notify({text});
+        await tinkoff.notify({text: atm});
     }
 };
