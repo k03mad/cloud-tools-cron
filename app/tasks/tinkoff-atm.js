@@ -13,7 +13,7 @@ export default async () => {
                 banks: ['tcs'],
                 showUnavailable: false,
                 currencies: ['USD'],
-                amounts: [{currency: 'USD', amount: 100}],
+                amounts: [{currency: 'USD', amount: 1000}],
             },
             zoom: 13,
         },
