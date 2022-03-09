@@ -2,9 +2,6 @@ export default {
     cloud: {
         is: process.env.IS_CLOUD,
         domain: process.env.CLOUD_DOMAIN,
-        magnet: {
-            port: process.env.CLOUD_MAGNET_PORT,
-        },
         grafana: {
             port: process.env.CLOUD_GRAFANA_PORT,
         },
