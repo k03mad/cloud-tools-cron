@@ -23,7 +23,6 @@ const minuteTasks = [
     'pinger',
     'syncthing',
     // 'tinkoff',
-    'tinkoff-atm',
     'ufw',
 ];
 
