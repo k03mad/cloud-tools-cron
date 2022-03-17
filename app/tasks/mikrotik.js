@@ -184,7 +184,7 @@ export default async () => {
     const dnsUnblocked = [];
 
     dnsCache.forEach(elem => {
-        if (!elem.type || elem.type === '(unknown') {
+        if (!elem.type || elem.type.includes('unknown')) {
             elem.type = 'unknown';
         }
 
