@@ -1,6 +1,6 @@
 import {influx, shell} from '@k03mad/util';
 
-/***/
+/** */
 export default async () => {
     const apt = await shell.run([
         'sudo apt-get update',

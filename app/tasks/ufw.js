@@ -1,6 +1,6 @@
 import {influx, shell} from '@k03mad/util';
 
-/***/
+/** */
 export default async () => {
     const ufw = await shell.run('sudo ufw status');
 

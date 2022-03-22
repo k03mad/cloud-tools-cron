@@ -1,7 +1,7 @@
 import {influx, shell} from '@k03mad/util';
 import _ from 'lodash';
 
-/***/
+/** */
 export default async () => {
     const cmd = {
         load: 'uptime',

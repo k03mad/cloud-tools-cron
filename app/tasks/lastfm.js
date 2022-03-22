@@ -2,7 +2,7 @@ import {influx, lastfm} from '@k03mad/util';
 
 import env from '../../env.js';
 
-/***/
+/** */
 export default async () => {
     const recentTracksGetSeconds = 3600;
 

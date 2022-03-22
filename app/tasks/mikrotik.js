@@ -19,7 +19,7 @@ const fillFirewallData = (data, fill) => {
     });
 };
 
-/***/
+/** */
 export default async () => {
     const SEPARATOR = ' :: ';
 

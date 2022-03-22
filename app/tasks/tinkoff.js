@@ -3,7 +3,7 @@ import asTable from 'as-table';
 
 const tgPreviousYield = {};
 
-/***/
+/** */
 export default async () => {
     const instrumentTypes = new Set(['Stock', 'Etf']);
     const tickerUsdToRub = 'USD000UTSTOM';

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 
 import env from '../../env.js';
 
-/***/
+/** */
 export default async () => {
     const gitFolder = `${env.fs.home}/git/`;
 

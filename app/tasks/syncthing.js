@@ -1,6 +1,6 @@
 import {array, folder, influx, syncthing} from '@k03mad/util';
 
-/***/
+/** */
 export default async () => {
     const bytes = {};
     const addresses = {};

@@ -5,7 +5,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
-/***/
+/** */
 export default async () => {
     const memory = {};
     const cpu = {};

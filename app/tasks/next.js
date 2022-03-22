@@ -41,7 +41,7 @@ const renameIsp = isp => {
 
 let logsElementLastTimestamp = 0;
 
-/***/
+/** */
 export default async () => {
     await next.auth();
 
