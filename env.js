@@ -5,12 +5,12 @@ export default {
         grafana: {
             port: process.env.CLOUD_GRAFANA_PORT,
         },
+        magnet: {
+            port: process.env.CLOUD_MAGNET_PORT,
+        },
     },
     lastfm: {
         users: process.env.LASTFM_USERS,
-    },
-    magnet: {
-        port: process.env.CLOUD_MAGNET_PORT,
     },
     mikrotik: {
         host: process.env.MIKROTIK_HOST,
