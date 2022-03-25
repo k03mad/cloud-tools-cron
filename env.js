@@ -9,6 +9,9 @@ export default {
     lastfm: {
         users: process.env.LASTFM_USERS,
     },
+    magnet: {
+        port: process.env.CLOUD_MAGNET_PORT,
+    },
     mikrotik: {
         host: process.env.MIKROTIK_HOST,
         port: {
