@@ -21,7 +21,6 @@ const minuteTasks = [
     'next',
     'node',
     'pinger',
-    'syncthing',
     // 'tinkoff',
     'ufw',
 ];
