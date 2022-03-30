@@ -10,4 +10,5 @@ export default () => pinger.check([
     {domain: cloud.domain, port: cloud.grafana.port},
     {domain: mikrotik.host, port: mikrotik.port.api},
     {domain: nextdns.domain},
+    {domain: 'dns.adguard.com', port: 853},
 ]);
