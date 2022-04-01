@@ -1,8 +1,8 @@
+/* eslint-disable camelcase */
 import {adg, influx} from '@k03mad/util';
 
 /** */
 export default async () => {
-    /* eslint-disable camelcase */
     const timeTo = Date.now();
     // 24h
     const timeFrom = timeTo - 86_400_000;
