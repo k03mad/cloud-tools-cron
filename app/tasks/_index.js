@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+export {default as adg} from './adg.js';
 export {default as apt} from './apt.js';
 export {default as cloud} from './cloud.js';
 export {default as f2b} from './f2b.js';

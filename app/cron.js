@@ -13,6 +13,7 @@ const hourTasks = [
 ];
 
 const minuteTasks = [
+    'adg',
     'cloud',
     'f2b',
     'influx',
