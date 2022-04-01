@@ -21,6 +21,9 @@ export default {
     nextdns: {
         domain: process.env.NEXT_DNS_DOMAIN,
     },
+    adg: {
+        domain: process.env.ADG_DNS_DOMAIN,
+    },
     influx: {
         request: process.env.INFLUX_STORE_REQUEST_STATS,
     },
