@@ -35,7 +35,7 @@
     "husky": "7.0.4"
   },
   "scripts": {
-    "lint": "eslint ./ --report-unused-disable-directives --ignore-pattern='!.*'",
+    "lint": "eslint ./ --report-unused-disable-directives",
     "setup": "npm i",
     "start": "pm2 start pm2.json",
     "task": "node run-one.js",
