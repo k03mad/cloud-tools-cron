@@ -43,7 +43,7 @@ export default async () => {
         `stats/dashboard?${timeParams}`,
         `stats/general?${timeParams}`,
 
-        `query_log?${timeParams}&limit=500`,
+        `query_log?${timeParams}&limit=100`,
     ].map(elem => adg.get(elem)));
 
     /**
