@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 import {adg, influx, object} from '@k03mad/util';
+import emoji from 'country-code-emoji';
+import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
@@ -83,7 +85,7 @@ export default async () => {
 
     const statsCountriesValues = Object.fromEntries(statsCountries
         .filter(({country_code, queries}) => queries && country_code !== 'UNKNOWN_COUNTRY')
-        .map(({country_code, queries}) => [country_code, queries]));
+        .map(({country_code, queries}) => [`${countries.alpha2ToAlpha3(country_code)} ${emoji(country_code)}`, queries]));
 
     const statsQueriesValues = statsGeneral.time_stats.combined_stats.overall;
 
