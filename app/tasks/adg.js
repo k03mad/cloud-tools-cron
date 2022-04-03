@@ -5,7 +5,6 @@ import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import env from '../../env.js';
 import {renameIsp} from '../lib/utils.js';
 
 const getCacheFileAbsPath = (file = 'foo') => {
@@ -121,14 +120,14 @@ export default async () => {
         tld !== 'https:'
             && object.count(logsTldValues, tld);
 
+        item.response.action_status !== 'NONE'
+            && object.count(logsStatusValues, item.response.action_status);
+
         item.response.filter_id
             && object.count(logsFilterValues, item.response.filter_id);
 
         item.response.action_source
             && object.count(logsSourceValues, item.response.action_source);
-
-        item.response.action_status
-            && object.count(logsSourceValues, item.response.action_status);
 
         const deviceName = deviceIdToName[item.device_id];
         const deviceIsp = `${deviceName} :: ${isp}`;
@@ -140,7 +139,7 @@ export default async () => {
     /**
      * Data for online graph
      */
-    let logsOnlineValues = {};
+    const logsOnlineValues = {};
 
     for (const cached of cacheDevices) {
         const {device, withIsp} = JSON.parse(cached);
@@ -173,11 +172,6 @@ export default async () => {
             await fs.writeFile(getCacheFileAbsPath(`${device}_${i}`).pathname, '');
             logsOnlineValues[withIsp] = i;
         }
-    }
-
-    if (!env.cloud.is) {
-        console.log('not cloud, skip devices write:', logsOnlineValues);
-        logsOnlineValues = {};
     }
 
     await influx.write([

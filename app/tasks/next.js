@@ -1,8 +1,7 @@
-import {cloud, influx, ip, next, object} from '@k03mad/util';
+import {influx, ip, next, object} from '@k03mad/util';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import env from '../../env.js';
 import {renameIsp} from '../lib/utils.js';
 
 const getCacheFileAbsPath = (file = 'foo') => {
@@ -53,11 +52,9 @@ export default async () => {
     const logsDevice = {};
     const logsIsp = {};
     const logsCity = {};
-    let logsDeviceIsp = {};
+    const logsDeviceIsp = {};
 
     const cacheDevices = new Set();
-
-    const notify = [];
 
     await Promise.all(logs.map(async elem => {
         if (elem.timestamp > logsElementLastTimestamp) {
@@ -122,15 +119,6 @@ export default async () => {
             await fs.writeFile(getCacheFileAbsPath(`${device}_${i}`).pathname, '');
             logsDeviceIsp[withIsp] = i;
         }
-    }
-
-    if (!env.cloud.is) {
-        console.log('not cloud, skip devices write:', logsDeviceIsp);
-        logsDeviceIsp = {};
-    }
-
-    if (notify.length > 0) {
-        await cloud.notify({text: notify.join('\n'), parse_mode: ''});
     }
 
     await influx.write([
