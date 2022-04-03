@@ -18,6 +18,7 @@ export default async () => {
     const timeTo = Date.now();
     // 24h
     const timeFrom = timeTo - 86_400_000;
+    const timeParams = `time_from_millis=${timeFrom}&time_to_millis=${timeTo}`;
 
     const [
         account,
@@ -37,12 +38,12 @@ export default async () => {
         'dns_servers',
         'filters',
 
-        `stats/companies_filter?time_from_millis=${timeFrom}&time_to_millis=${timeTo}`,
-        `stats/countries_filter?time_from_millis=${timeFrom}&time_to_millis=${timeTo}`,
-        `stats/dashboard?time_from_millis=${timeFrom}&time_to_millis=${timeTo}`,
-        `stats/general?time_from_millis=${timeFrom}&time_to_millis=${timeTo}`,
+        `stats/companies_filter?${timeParams}`,
+        `stats/countries_filter?${timeParams}`,
+        `stats/dashboard?${timeParams}`,
+        `stats/general?${timeParams}`,
 
-        `query_log?time_from_millis=${timeFrom}&time_to_millis=${timeTo}&limit=500`,
+        `query_log?${timeParams}&limit=500`,
     ].map(elem => adg.get(elem)));
 
     const deviceIdToName = Object.fromEntries(devices
