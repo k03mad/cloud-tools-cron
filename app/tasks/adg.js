@@ -98,6 +98,7 @@ export default async () => {
     const logsNetworkValues = {};
     const logsProtoValues = {};
     const logsSourceValues = {};
+    const logsStatusValues = {};
     const logsTldValues = {};
     const logsTypeValues = {};
 
@@ -125,6 +126,9 @@ export default async () => {
 
         item.response.action_source
             && object.count(logsSourceValues, item.response.action_source);
+
+        item.response.action_status
+            && object.count(logsSourceValues, item.response.action_status);
 
         const deviceName = deviceIdToName[item.device_id];
         const deviceIsp = `${deviceName} :: ${isp}`;
@@ -194,6 +198,7 @@ export default async () => {
         {meas: 'adg-logs-online', values: logsOnlineValues},
         {meas: 'adg-logs-proto', values: logsProtoValues},
         {meas: 'adg-logs-source', values: logsSourceValues},
+        {meas: 'adg-logs-status', values: logsStatusValues},
         {meas: 'adg-logs-tld', values: logsTldValues},
         {meas: 'adg-logs-type', values: logsTypeValues},
     ]);
