@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import env from '../../env.js';
+import {renameIsp} from '../lib/utils.js';
 
 const getCacheFileAbsPath = (file = 'foo') => {
     const {pathname} = new URL(`../../.devices/${file}`, import.meta.url);
@@ -16,28 +17,6 @@ const mapValues = (
         .filter(elem => elem[key])
         .map(elem => [elem[key], elem[value]]),
 );
-
-const renameIsp = isp => {
-    const replaces = [
-        ['Net By Net Holding LLC', 'NBN'],
-        ['T2 Mobile', 'Tele2'],
-        ['Tele2 Russia', 'Tele2'],
-        ['YANDEX', 'Yandex'],
-    ];
-
-    const removes = [
-        'LLC', 'AO', 'OOO', 'JSC', 'ltd', 'Ltd.',
-        'Bank', 'Limited', 'Liability', 'Company', 'incorporated', 'Oy$',
-    ];
-
-    replaces.forEach(([from, to]) => {
-        isp = isp.replace(from, to);
-    });
-
-    return isp
-        .replace(new RegExp(`\\s*(${removes.join('|')})\\s*`, 'g'), '')
-        .trim();
-};
 
 let logsElementLastTimestamp = 0;
 
@@ -110,6 +89,8 @@ export default async () => {
         }
     }));
 
+    logsElementLastTimestamp = logs[0].timestamp;
+
     for (const cached of cacheDevices) {
         const {device, withIsp} = JSON.parse(cached);
         const cacheDir = getCacheFileAbsPath().dirname;
@@ -142,8 +123,6 @@ export default async () => {
             logsDeviceIsp[withIsp] = i;
         }
     }
-
-    logsElementLastTimestamp = logs[0].timestamp;
 
     if (!env.cloud.is) {
         console.log('not cloud, skip devices write:', logsDeviceIsp);
