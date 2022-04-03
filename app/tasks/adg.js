@@ -46,26 +46,23 @@ export default async () => {
         `query_log?${timeParams}&limit=500`,
     ].map(elem => adg.get(elem)));
 
+    /**
+     * Data used in other values
+     */
     const deviceIdToName = Object.fromEntries(devices
         .map(({id, name}) => [id, name]));
 
     const enabledFilters = Object.fromEntries(dnsServers[0].settings.filter_lists_settings.filter_list
         .map(({enabled, filter_id}) => [filter_id, enabled]));
 
-    const queriesValues = statsGeneral.time_stats.combined_stats.overall;
+    /**
+     * Data from common handlers
+     */
     const limitsValues = {...account.license.account_limits, ...account.license.request_limits};
-
-    const countriesValues = Object.fromEntries(statsCountries
-        .filter(({country_code, queries}) => queries && country_code !== 'UNKNOWN_COUNTRY')
-        .map(({country_code, queries}) => [country_code, queries]));
 
     const filtersValues = Object.fromEntries(filters
         .filter(({filter_id}) => enabledFilters[filter_id])
         .map(({filter_id, rules_count}) => [filter_id, rules_count]));
-
-    const companiesValues = Object.fromEntries(statsCompanies
-        .filter(({queries}) => queries)
-        .map(({company, queries}) => [company.company_name, queries]));
 
     const categoriesValues = Object.fromEntries(statsGeneral.category_types_stats.stats
         .filter(({category_type}) => category_type !== 'OTHERS')
@@ -74,16 +71,32 @@ export default async () => {
     const domainsValues = Object.fromEntries(statsGeneral.domains_stats.stats
         .map(({domain, value}) => [domain, value.queries]));
 
-    const clientsValues = Object.fromEntries(statsDashboard.dns_servers_stats.values[0].devices_stats
+    /**
+     * Data from stats handler
+     */
+    const statsClientsValues = Object.fromEntries(statsDashboard.dns_servers_stats.values[0].devices_stats
         .map(({device_id, stats}) => [deviceIdToName[device_id], stats.queries]));
 
-    const logsDnssecValues = {};
-    const logsProtoValues = {};
-    const logsTypeValues = {};
+    const statsCompaniesValues = Object.fromEntries(statsCompanies
+        .filter(({queries}) => queries)
+        .map(({company, queries}) => [company.company_name, queries]));
+
+    const statsCountriesValues = Object.fromEntries(statsCountries
+        .filter(({country_code, queries}) => queries && country_code !== 'UNKNOWN_COUNTRY')
+        .map(({country_code, queries}) => [country_code, queries]));
+
+    const statsQueriesValues = statsGeneral.time_stats.combined_stats.overall;
+
+    /**
+     * Data from queries logs
+     */
     const logsCodeValues = {};
+    const logsDnssecValues = {};
     const logsFilterValues = {};
     const logsNetworkValues = {};
-    let logsOnlineValues = {};
+    const logsProtoValues = {};
+    const logsTldValues = {};
+    const logsTypeValues = {};
 
     const cacheDevices = new Set();
 
@@ -93,12 +106,16 @@ export default async () => {
         }
 
         const isp = renameIsp(item.response.ip_info.network);
+        const tld = item.request.domain.split('.').pop();
 
+        object.count(logsCodeValues, item.response.dns_response_type);
         object.count(logsDnssecValues, item.request.dnssec);
+        object.count(logsNetworkValues, isp);
         object.count(logsProtoValues, item.request.dns_proto_type);
         object.count(logsTypeValues, item.request.dns_request_type);
-        object.count(logsCodeValues, item.response.dns_response_type);
-        object.count(logsNetworkValues, isp);
+
+        tld !== 'https:'
+            && object.count(logsTldValues, tld);
 
         item.response.filter_id
             && object.count(logsFilterValues, item.response.filter_id);
@@ -109,6 +126,11 @@ export default async () => {
     }
 
     logsElementLastTimestamp = logs.items[0].time_millis;
+
+    /**
+     * Data for online graph
+     */
+    let logsOnlineValues = {};
 
     for (const cached of cacheDevices) {
         const {device, withIsp} = JSON.parse(cached);
@@ -150,20 +172,22 @@ export default async () => {
 
     await influx.write([
         {meas: 'adg-categories', values: categoriesValues},
-        {meas: 'adg-clients', values: clientsValues},
-        {meas: 'adg-companies', values: companiesValues},
-        {meas: 'adg-countries', values: countriesValues},
         {meas: 'adg-domains', values: domainsValues},
         {meas: 'adg-filters', values: filtersValues},
         {meas: 'adg-limits', values: limitsValues},
-        {meas: 'adg-queries', values: queriesValues},
 
-        {meas: 'adg-logs-dnssec', values: logsDnssecValues},
-        {meas: 'adg-logs-proto', values: logsProtoValues},
-        {meas: 'adg-logs-type', values: logsTypeValues},
+        {meas: 'adg-stats-clients', values: statsClientsValues},
+        {meas: 'adg-stats-companies', values: statsCompaniesValues},
+        {meas: 'adg-stats-countries', values: statsCountriesValues},
+        {meas: 'adg-stats-queries', values: statsQueriesValues},
+
         {meas: 'adg-logs-code', values: logsCodeValues},
+        {meas: 'adg-logs-dnssec', values: logsDnssecValues},
         {meas: 'adg-logs-filter', values: logsFilterValues},
         {meas: 'adg-logs-network', values: logsNetworkValues},
         {meas: 'adg-logs-online', values: logsOnlineValues},
+        {meas: 'adg-logs-proto', values: logsProtoValues},
+        {meas: 'adg-logs-tld', values: logsTldValues},
+        {meas: 'adg-logs-type', values: logsTypeValues},
     ]);
 };
