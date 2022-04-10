@@ -112,7 +112,7 @@ export default async () => {
         if (client && client.comment) {
             key = client.comment;
         } else {
-            const [vendor] = oui(mac).split('\n')[0].match(/^([\w-]+( \w+)?)/);
+            const [vendor] = oui(mac)?.split('\n')[0].match(/^([\w-]+( \w+)?)/) || ['unknown'];
             key = vendor + SEPARATOR + mac;
         }
 
@@ -126,8 +126,8 @@ export default async () => {
     const connectionsDomains = {};
 
     await Promise.all(firewallConnections.map(async elem => {
-        const [dstAddress, port] = elem['dst-address'].split(':');
-        const [srcAddress] = elem['src-address'].split(':');
+        const [dstAddress, port] = elem['dst-address']?.split(':') || [];
+        const [srcAddress] = elem['src-address']?.split(':') || [];
 
         object.count(connectionsProtocols, elem.protocol);
 
@@ -139,7 +139,11 @@ export default async () => {
             object.count(connectionsPorts, port);
         }
 
-        if (!re.isLocalIp(dstAddress) && !dstAddress?.includes('255')) {
+        if (
+            dstAddress
+            && !re.isLocalIp(dstAddress)
+            && !dstAddress?.includes('255')
+        ) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
 
             if (bytes > connectionsMinBytes) {
