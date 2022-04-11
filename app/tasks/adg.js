@@ -1,13 +1,14 @@
 /* eslint-disable camelcase */
 import {adg, influx, object} from '@k03mad/util';
 import emoji from 'country-code-emoji';
+import {TLDs} from 'global-tld-list';
 import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import {renameIsp} from '../lib/utils.js';
 
-const getFileUrl = (file = 'foo') => new URL(`../../.adg/${file}`, import.meta.url).pathname;
+const getFileUrl = file => new URL(`../../.adg/${file}`, import.meta.url).pathname;
 
 const getCacheFileAbsPath = file => {
     const pathname = getFileUrl(file);
@@ -116,14 +117,12 @@ export default async () => {
     } catch {}
 
     for (const item of logs.items) {
-        console.log('—————————— \n item', item);
-
         if (item.time_millis <= logsElementLastTimestamp) {
             break;
         }
 
         const isp = renameIsp(item.response.ip_info.network);
-        const tld = item.request.domain.split('.').pop();
+        const tld = item.request.domain.split('.').pop().toLowerCase();
 
         object.count(logsCodeValues, item.response.dns_response_type);
         object.count(logsCountriesValues, getCountryWithFlag(item.response.ip_info.client_country));
@@ -132,7 +131,7 @@ export default async () => {
         object.count(logsProtoValues, item.request.dns_proto_type);
         object.count(logsTypeValues, item.request.dns_request_type);
 
-        tld !== 'https:'
+        TLDs.includes(tld)
             && object.count(logsTldValues, tld);
 
         item.response.action_status !== 'NONE'
