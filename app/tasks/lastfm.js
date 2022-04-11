@@ -7,7 +7,7 @@ export default async () => {
     const recentTracksGetSeconds = 3600;
 
     const countWithBugAbove = {
-        artists: 150,
+        artists: 200,
         tracks: 100,
         recent: 100,
     };
