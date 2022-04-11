@@ -112,8 +112,8 @@ export default async () => {
         if (client && client.comment) {
             key = client.comment;
         } else {
-            const [vendor] = oui(mac)?.split('\n')[0].match(/^([\w-]+( \w+)?)/) || ['unknown'];
-            key = vendor + SEPARATOR + mac;
+            const [vendor] = oui(mac)?.split('\n')[0].match(/^([\w-]+( \w+)?)/) || [];
+            key = vendor ? vendor + SEPARATOR + mac : mac;
         }
 
         clientsTraffic[key] = Number(elem.bytes.replace(',', '.'));
