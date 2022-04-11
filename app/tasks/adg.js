@@ -7,15 +7,18 @@ import path from 'node:path';
 
 import {renameIsp} from '../lib/utils.js';
 
-const getCacheFileAbsPath = (file = 'foo') => {
-    const {pathname} = new URL(`../../.adg/${file}`, import.meta.url);
+const getFileUrl = (file = 'foo') => new URL(`../../.adg/${file}`, import.meta.url).pathname;
+
+const getCacheFileAbsPath = file => {
+    const pathname = getFileUrl(file);
     return {pathname, dirname: path.dirname(pathname)};
 };
 
-let logsElementLastTimestamp = 0;
+const getCountryWithFlag = country => `${countries.alpha2ToAlpha3(country)} ${emoji(country)}`;
 
 /** */
 export default async () => {
+    const timestampFile = '.timestamp';
     const timeTo = Date.now();
     // 24h
     const timeFrom = timeTo - 86_400_000;
@@ -84,7 +87,7 @@ export default async () => {
 
     const statsCountriesValues = Object.fromEntries(statsCountries
         .filter(({country_code, queries}) => queries && country_code !== 'UNKNOWN_COUNTRY')
-        .map(({country_code, queries}) => [`${countries.alpha2ToAlpha3(country_code)} ${emoji(country_code)}`, queries]));
+        .map(({country_code, queries}) => [getCountryWithFlag(country_code), queries]));
 
     const statsQueriesValues = statsGeneral.time_stats.combined_stats.overall;
 
@@ -100,10 +103,21 @@ export default async () => {
     const logsStatusValues = {};
     const logsTldValues = {};
     const logsTypeValues = {};
+    const logsCountriesValues = {};
 
     const cacheDevices = new Set();
 
+    let logsElementLastTimestamp = 0;
+
+    try {
+        logsElementLastTimestamp = Number(
+            await fs.readFile(getFileUrl(timestampFile), {encoding: 'utf8'}),
+        );
+    } catch {}
+
     for (const item of logs.items) {
+        console.log('—————————— \n item', item);
+
         if (item.time_millis <= logsElementLastTimestamp) {
             break;
         }
@@ -112,6 +126,7 @@ export default async () => {
         const tld = item.request.domain.split('.').pop();
 
         object.count(logsCodeValues, item.response.dns_response_type);
+        object.count(logsCountriesValues, getCountryWithFlag(item.response.ip_info.client_country));
         object.count(logsDnssecValues, item.request.dnssec);
         object.count(logsNetworkValues, isp);
         object.count(logsProtoValues, item.request.dns_proto_type);
@@ -134,7 +149,7 @@ export default async () => {
         cacheDevices.add(JSON.stringify({device: deviceName, withIsp: deviceIsp}));
     }
 
-    logsElementLastTimestamp = logs.items[0].time_millis;
+    await fs.writeFile(getFileUrl(timestampFile), String(logs.items[0].time_millis));
 
     /**
      * Data for online graph
@@ -186,6 +201,7 @@ export default async () => {
         {meas: 'adg-stats-queries', values: statsQueriesValues},
 
         {meas: 'adg-logs-code', values: logsCodeValues},
+        {meas: 'adg-logs-country', values: logsCountriesValues},
         {meas: 'adg-logs-dnssec', values: logsDnssecValues},
         {meas: 'adg-logs-filter', values: logsFilterValues},
         {meas: 'adg-logs-network', values: logsNetworkValues},
