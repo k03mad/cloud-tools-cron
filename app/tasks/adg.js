@@ -104,7 +104,7 @@ export default async () => {
     const cacheDevices = new Set();
 
     for (const item of logs.items) {
-        if (item.time_millis <= logsElementLastTimestamp) {
+        if (item.time_millis > logsElementLastTimestamp) {
             break;
         }
 
