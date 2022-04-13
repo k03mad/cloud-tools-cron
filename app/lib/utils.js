@@ -8,18 +8,25 @@ export const renameIsp = isp => {
         ['T2 Mobile', 'Tele2'],
         ['Tele2 Russia', 'Tele2'],
         ['YANDEX', 'Yandex'],
+        ['CLOUDFLARENET', 'Cloudflare'],
+
+        ['LLC'],
+        ['AO'],
+        ['OOO'],
+        ['JSC'],
+        ['ltd'],
+        ['Ltd.'],
+        ['Bank'],
+        ['Limited'],
+        ['Liability'],
+        ['Company'],
+        ['incorporated'],
+        ['Oy'],
     ];
 
-    const removes = [
-        'LLC', 'AO', 'OOO', 'JSC', 'ltd', 'Ltd.',
-        'Bank', 'Limited', 'Liability', 'Company', 'incorporated', 'Oy$',
-    ];
-
-    replaces.forEach(([from, to]) => {
+    replaces.forEach(([from, to = '']) => {
         isp = isp.replace(from, to);
     });
 
-    return isp
-        .replace(new RegExp(`\\s*(${removes.join('|')})\\s*`, 'g'), '')
-        .trim();
+    return isp.trim();
 };
