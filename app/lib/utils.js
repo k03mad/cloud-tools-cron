@@ -5,23 +5,22 @@
 export const renameIsp = isp => {
     const replaces = [
         ['Net By Net Holding LLC', 'NBN'],
-        ['T2 Mobile', 'Tele2'],
-        ['Tele2 Russia', 'Tele2'],
+        [/T2 Mobile|Tele2 Russia/, 'Tele2'],
         ['YANDEX', 'Yandex'],
         ['CLOUDFLARENET', 'Cloudflare'],
 
-        ['LLC'],
         ['AO'],
-        ['OOO'],
-        ['JSC'],
-        ['ltd'],
-        ['Ltd.'],
         ['Bank'],
-        ['Limited'],
-        ['Liability'],
         ['Company'],
-        ['incorporated'],
-        ['Oy'],
+        ['Liability'],
+        ['Limited'],
+        ['LLC'],
+        ['OOO'],
+
+        [/incorporated/i],
+        [/ltd.?/i],
+        [/Oy$/],
+        [/P?JSC/],
     ];
 
     replaces.forEach(([from, to = '']) => {
