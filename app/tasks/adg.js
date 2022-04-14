@@ -69,6 +69,8 @@ export default async () => {
         .filter(({filter_id}) => enabledFilters[filter_id])
         .map(({filter_id, rules_count}) => [filter_id, rules_count]));
 
+    const filtersCountValues = {used: Object.keys(filtersValues).length, all: filters.length};
+
     const categoriesValues = Object.fromEntries(statsGeneral.category_types_stats.stats
         .filter(({category_type}) => category_type !== 'OTHERS')
         .map(({category_type, queries}) => [category_type, queries]));
@@ -192,6 +194,7 @@ export default async () => {
         {meas: 'adg-categories', values: categoriesValues},
         {meas: 'adg-domains', values: domainsValues},
         {meas: 'adg-filters', values: filtersValues},
+        {meas: 'adg-filters-count', values: filtersCountValues},
         {meas: 'adg-limits', values: limitsValues},
 
         {meas: 'adg-stats-clients', values: statsClientsValues},
