@@ -24,9 +24,6 @@ export default {
     adg: {
         domain: process.env.ADG_DNS_DOMAIN,
     },
-    influx: {
-        request: process.env.INFLUX_STORE_REQUEST_STATS,
-    },
     fs: {
         home: process.env.HOME,
     },
