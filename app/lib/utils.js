@@ -1,28 +1,23 @@
-import {array} from '@k03mad/util';
-
 /**
  * @param {string} isp
  * @returns {string}
  */
 export const renameIsp = isp => {
     const replaces = [
-        [/.*\scomcor$/i, 'Akado'],
-        [/^cloudflarenet$/i, 'Cloudflare'],
-        [/^megafon$/i, 'Megafon'],
-        [/^net by net holding llc$/i, 'NBN'],
-        [/^pvimpelcom$/i, 'Beeline'],
-        [/^yandex$/i, 'Yandex'],
-
-        /\sllc/i,
-        /\sltd\.?/i,
-        /\soy$/i,
-        /p?jsc\s/i,
+        ['CLOUDFLARENET', 'Cloudflare'],
+        ['Net By Net Holding LLC', 'NBN'],
+        ['PJSC MegaFon', 'Megafon'],
+        ['PVimpelCom', 'Beeline'],
+        ['Yandex Oy', 'Yandex'],
+        ['Yandex.Cloud LLC', 'Yandex Cloud'],
+        ['YANDEX', 'Yandex'],
     ];
 
-    replaces.forEach(elem => {
-        const [from, to = ''] = array.convert(elem);
-        isp = isp.replace(from, to);
-    });
+    for (const [from, to] of replaces) {
+        if (isp === from) {
+            return to;
+        }
+    }
 
-    return isp.trim();
+    return isp;
 };
