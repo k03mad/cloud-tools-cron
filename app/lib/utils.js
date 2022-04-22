@@ -8,9 +8,9 @@ export const renameIsp = isp => {
         ['Net By Net Holding LLC', 'NBN'],
         ['PJSC MegaFon', 'Megafon'],
         ['PVimpelCom', 'Beeline'],
+        ['YANDEX LLC', 'Yandex'],
         ['Yandex Oy', 'Yandex'],
         ['Yandex.Cloud LLC', 'Yandex Cloud'],
-        ['YANDEX', 'Yandex'],
     ];
 
     for (const [from, to] of replaces) {
