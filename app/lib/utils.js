@@ -9,7 +9,6 @@ export const renameIsp = isp => {
         ['PJSC MegaFon', 'Megafon'],
         ['PVimpelCom', 'Beeline'],
         ['YANDEX LLC', 'Yandex'],
-        ['Yandex Oy', 'Yandex'],
         ['Yandex.Cloud LLC', 'Yandex Cloud'],
     ];
 
