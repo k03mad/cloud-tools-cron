@@ -18,9 +18,6 @@ export default {
             api: process.env.MIKROTIK_API_PORT,
         },
     },
-    nextdns: {
-        domain: process.env.NEXT_DNS_DOMAIN,
-    },
     adg: {
         domain: process.env.ADG_DNS_DOMAIN,
     },

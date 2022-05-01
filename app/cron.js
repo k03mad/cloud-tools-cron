@@ -19,7 +19,6 @@ const minuteTasks = [
     'influx',
     'lastfm',
     'mikrotik',
-    'next',
     'node',
     'pinger',
     // 'tinkoff',
