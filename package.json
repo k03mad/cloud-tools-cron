@@ -23,7 +23,7 @@
     "i18n-iso-countries": "7.4.0",
     "lodash": "4.17.21",
     "moment": "2.29.3",
-    "oui": "12.0.3",
+    "oui": "12.0.4",
     "recron": "1.1.3"
   },
   "devDependencies": {
