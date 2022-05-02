@@ -26,8 +26,6 @@ const minuteTasks = [
 ];
 
 const tasks = {
-    ...generateCron('magnet-shows', {cronString: '0 */6 * * *'}),
-    ...generateCron('magnet-films', {cronString: '30 */6 * * *'}),
     ...generateCron(minuteTasks, {everyMinute: true}),
     ...generateCron(hourTasks, {everyHour: true}),
 };
