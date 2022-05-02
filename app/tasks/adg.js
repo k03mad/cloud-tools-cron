@@ -151,6 +151,7 @@ export default async () => {
             && object.count(logsBlockedDomainsValues, item.request.domain);
 
         item.response.action_status === 'REQUEST_ALLOWED'
+            && !item.request.domain.endsWith('-dnsotls-ds.metric.gstatic.com')
             && object.count(logsAllowedDomainsValues, item.request.domain);
 
         item.response.action_status === 'RESPONSE_BLOCKED'
