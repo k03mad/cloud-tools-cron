@@ -107,6 +107,11 @@ export default async () => {
     const logsTldValues = {};
     const logsTypeValues = {};
     const logsCountriesValues = {};
+    const logsBlockedDomainsValues = {};
+    const logsAllowedDomainsValues = {};
+    const logsBlockedResponseDomainsValues = {};
+    const logsUserFilteredDomainsValues = {};
+    const logsResponseNameErrorValues = {};
 
     const cacheDevices = new Set();
 
@@ -136,14 +141,29 @@ export default async () => {
         TLDs.includes(tld)
             && object.count(logsTldValues, tld);
 
-        item.response.action_status !== 'NONE'
-            && object.count(logsStatusValues, item.response.action_status);
-
         item.response.filter_id
             && object.count(logsFilterValues, item.response.filter_id);
 
+        item.response.action_status !== 'NONE'
+            && object.count(logsStatusValues, item.response.action_status);
+
+        item.response.action_status === 'REQUEST_BLOCKED'
+            && object.count(logsBlockedDomainsValues, item.request.domain);
+
+        item.response.action_status === 'REQUEST_ALLOWED'
+            && object.count(logsAllowedDomainsValues, item.request.domain);
+
+        item.response.action_status === 'RESPONSE_BLOCKED'
+            && object.count(logsBlockedResponseDomainsValues, item.request.domain);
+
+        item.response.action_source === 'USER_FILTER'
+            && object.count(logsUserFilteredDomainsValues, item.request.domain);
+
         item.response.action_source
             && object.count(logsSourceValues, item.response.action_source);
+
+        item.response.dns_response_type === 'RcodeNameError'
+            && object.count(logsResponseNameErrorValues, item.request.domain);
 
         const deviceName = deviceIdToName[item.device_id];
         const deviceIsp = `${deviceName} :: ${isp}`;
@@ -202,6 +222,9 @@ export default async () => {
         {meas: 'adg-stats-countries', values: statsCountriesValues},
         {meas: 'adg-stats-queries', values: statsQueriesValues},
 
+        {meas: 'adg-logs-allowed-domains', values: logsAllowedDomainsValues},
+        {meas: 'adg-logs-blocked-domains', values: logsBlockedDomainsValues},
+        {meas: 'adg-logs-blocked-response-domains', values: logsBlockedResponseDomainsValues},
         {meas: 'adg-logs-code', values: logsCodeValues},
         {meas: 'adg-logs-country', values: logsCountriesValues},
         {meas: 'adg-logs-dnssec', values: logsDnssecValues},
@@ -209,9 +232,11 @@ export default async () => {
         {meas: 'adg-logs-network', values: logsNetworkValues},
         {meas: 'adg-logs-online', values: logsOnlineValues},
         {meas: 'adg-logs-proto', values: logsProtoValues},
+        {meas: 'adg-logs-response-name-error-domains', values: logsResponseNameErrorValues},
         {meas: 'adg-logs-source', values: logsSourceValues},
         {meas: 'adg-logs-status', values: logsStatusValues},
         {meas: 'adg-logs-tld', values: logsTldValues},
         {meas: 'adg-logs-type', values: logsTypeValues},
+        {meas: 'adg-logs-user-filtered-domains', values: logsUserFilteredDomainsValues},
     ]);
 };
