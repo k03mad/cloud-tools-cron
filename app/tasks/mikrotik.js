@@ -1,4 +1,6 @@
-import {array, influx, ip, mikrotik, object, re} from '@k03mad/util';
+import {array, influx, ip, mikrotik, object, re, string} from '@k03mad/util';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import oui from 'oui';
 
 const fillFirewallData = (data, fill) => {
@@ -17,6 +19,13 @@ const fillFirewallData = (data, fill) => {
             }
         }
     });
+};
+
+const getFileUrl = file => new URL(`../../.mikrotik/${file}`, import.meta.url).pathname;
+
+const getCacheFileAbsPath = file => {
+    const pathname = getFileUrl(file);
+    return {pathname, dirname: path.dirname(pathname)};
 };
 
 /** */
@@ -184,9 +193,37 @@ export default async () => {
 
     const dnsUnblockedDomains = {};
 
-    dnsUnblocked.sort().forEach((elem, i) => {
-        dnsUnblockedDomains[elem] = i + 1;
-    });
+    for (const domain of dnsUnblocked) {
+        const cacheDir = getCacheFileAbsPath().dirname;
+
+        const cacheDomains = [];
+
+        try {
+            const cachedData = await fs.readdir(cacheDir);
+
+            cacheDomains.push(...cachedData.map(data => {
+                const [name, index] = data.split('_');
+                return [name, Number(index)];
+            }));
+        } catch {
+            await fs.mkdir(cacheDir, {recursive: true});
+        }
+
+        const found = cacheDomains.find(([name]) => name === domain);
+
+        if (found) {
+            [, dnsUnblockedDomains[domain]] = found;
+        } else {
+            let i = 1;
+
+            while (new Set(cacheDomains.map(([, index]) => index)).has(i)) {
+                i++;
+            }
+
+            await fs.writeFile(getCacheFileAbsPath(`${string.filenamify(domain)}_${i}`).pathname, '');
+            dnsUnblockedDomains[domain] = i;
+        }
+    }
 
     await Promise.all([
         influx.write([
