@@ -26,12 +26,6 @@ export default async () => {
     // 1 MB
     const connectionsMinBytes = 1_048_576;
 
-    const commonPorts = new Set([
-        21, 22, 53, 80,
-        123, 443,
-        8080,
-    ]);
-
     const [usage] = await mikrotik.post('/system/resource/print');
 
     const [
@@ -120,24 +114,13 @@ export default async () => {
         clientsSignal[key] = Number(elem['signal-strength'].replace(/@.+/, ''));
     });
 
-    const connectionsPorts = {};
     const connectionsProtocols = {};
-    const connectionsSrc = {};
     const connectionsDomains = {};
 
     await Promise.all(firewallConnections.map(async elem => {
-        const [dstAddress, port] = elem['dst-address']?.split(':') || [];
-        const [srcAddress] = elem['src-address']?.split(':') || [];
+        const [dstAddress] = elem['dst-address']?.split(':') || [];
 
         object.count(connectionsProtocols, elem.protocol);
-
-        if (clientsIpToName[srcAddress]) {
-            object.count(connectionsSrc, clientsIpToName[srcAddress]);
-        }
-
-        if (commonPorts.has(Number(port))) {
-            object.count(connectionsPorts, port);
-        }
 
         if (
             dstAddress
@@ -209,9 +192,7 @@ export default async () => {
         influx.write([
             {meas: 'mikrotik-address-list', values: addressListsCount},
             {meas: 'mikrotik-clients-signal', values: clientsSignal},
-            {meas: 'mikrotik-connections-ports', values: connectionsPorts},
             {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
-            {meas: 'mikrotik-connections-src', values: connectionsSrc},
             {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
             {meas: 'mikrotik-dns-unblocked', values: dnsUnblockedDomains},
             {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
