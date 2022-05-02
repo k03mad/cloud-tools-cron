@@ -110,7 +110,6 @@ export default async () => {
     const logsBlockedDomainsValues = {};
     const logsAllowedDomainsValues = {};
     const logsBlockedResponseDomainsValues = {};
-    const logsUserFilteredDomainsValues = {};
     const logsResponseNameErrorValues = {};
 
     const cacheDevices = new Set();
@@ -156,9 +155,6 @@ export default async () => {
 
         item.response.action_status === 'RESPONSE_BLOCKED'
             && object.count(logsBlockedResponseDomainsValues, item.request.domain);
-
-        item.response.action_source === 'USER_FILTER'
-            && object.count(logsUserFilteredDomainsValues, item.request.domain);
 
         item.response.action_source
             && object.count(logsSourceValues, item.response.action_source);
@@ -238,6 +234,5 @@ export default async () => {
         {meas: 'adg-logs-status', values: logsStatusValues},
         {meas: 'adg-logs-tld', values: logsTldValues},
         {meas: 'adg-logs-type', values: logsTypeValues},
-        {meas: 'adg-logs-user-filtered-domains', values: logsUserFilteredDomainsValues},
     ]);
 };
