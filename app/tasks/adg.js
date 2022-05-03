@@ -109,7 +109,6 @@ export default async () => {
     const logsCountriesValues = {};
     const logsBlockedDomainsValues = {};
     const logsAllowedDomainsValues = {};
-    const logsBlockedResponseDomainsValues = {};
     const logsResponseNameErrorValues = {};
 
     const cacheDevices = new Set();
@@ -152,9 +151,6 @@ export default async () => {
         item.response.action_status === 'REQUEST_ALLOWED'
             && !item.request.domain.endsWith('-dnsotls-ds.metric.gstatic.com')
             && object.count(logsAllowedDomainsValues, item.request.domain);
-
-        item.response.action_status === 'RESPONSE_BLOCKED'
-            && object.count(logsBlockedResponseDomainsValues, item.request.domain);
 
         item.response.action_source
             && object.count(logsSourceValues, item.response.action_source);
@@ -221,7 +217,6 @@ export default async () => {
 
         {meas: 'adg-logs-allowed-domains', values: logsAllowedDomainsValues},
         {meas: 'adg-logs-blocked-domains', values: logsBlockedDomainsValues},
-        {meas: 'adg-logs-blocked-response-domains', values: logsBlockedResponseDomainsValues},
         {meas: 'adg-logs-code', values: logsCodeValues},
         {meas: 'adg-logs-country', values: logsCountriesValues},
         {meas: 'adg-logs-dnssec', values: logsDnssecValues},
