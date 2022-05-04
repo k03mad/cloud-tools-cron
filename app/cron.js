@@ -19,7 +19,6 @@ const minuteTasks = [
     'mikrotik',
     'node',
     'pinger',
-    // 'tinkoff',
     'ufw',
 ];
 
