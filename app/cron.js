@@ -9,7 +9,6 @@ cron.start();
 const hourTasks = [
     'apt',
     'git',
-    'myshows',
 ];
 
 const minuteTasks = [
@@ -17,7 +16,6 @@ const minuteTasks = [
     'cloud',
     'f2b',
     'influx',
-    'lastfm',
     'mikrotik',
     'node',
     'pinger',

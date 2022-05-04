@@ -6,9 +6,6 @@ export default {
             port: process.env.CLOUD_GRAFANA_PORT,
         },
     },
-    lastfm: {
-        users: process.env.LASTFM_USERS,
-    },
     mikrotik: {
         host: process.env.MIKROTIK_HOST,
         port: {
