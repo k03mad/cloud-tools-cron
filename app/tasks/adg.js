@@ -91,7 +91,7 @@ export default async () => {
     const logsDomainError = {};
     const logsDomainTld = {};
     const logsFilter = {};
-    const logsNetwork = {};
+    const logsIsp = {};
     const logsProto = {};
     const logsRequestAllowed = {};
     const logsRequestBlocked = {};
@@ -160,7 +160,7 @@ export default async () => {
         object.count(logsDevice, deviceName);
         object.count(logsDnssec, item.request.dnssec);
         object.count(logsDomainBase, baseDomain);
-        object.count(logsNetwork, isp);
+        object.count(logsIsp, isp);
         object.count(logsProto, item.request.dns_proto_type);
         object.count(logsType, item.request.dns_request_type);
 
@@ -172,7 +172,7 @@ export default async () => {
     /**
      * Data for online graph
      */
-    const logsOnlineValues = {};
+    const logsTimeline = {};
 
     for (const cached of cacheDevices) {
         const cachedData = await fs.readdir(cacheDir);
@@ -188,7 +188,7 @@ export default async () => {
         const found = parsedCacheDevices.find(([name]) => name === device);
 
         if (found) {
-            [, logsOnlineValues[withIsp]] = found;
+            [, logsTimeline[withIsp]] = found;
         } else {
             let i = 1;
 
@@ -197,7 +197,7 @@ export default async () => {
             }
 
             await fs.writeFile(getCacheFileAbsPath(`${device}_${i}`).pathname, '');
-            logsOnlineValues[withIsp] = i;
+            logsTimeline[withIsp] = i;
         }
     }
 
@@ -217,13 +217,13 @@ export default async () => {
         {meas: 'adg-logs-domain-error', values: logsDomainError},
         {meas: 'adg-logs-domain-tld', values: logsDomainTld},
         {meas: 'adg-logs-filter', values: logsFilter},
-        {meas: 'adg-logs-network', values: logsNetwork},
-        {meas: 'adg-logs-online', values: logsOnlineValues},
+        {meas: 'adg-logs-isp', values: logsIsp},
         {meas: 'adg-logs-proto', values: logsProto},
         {meas: 'adg-logs-request-allowed', values: logsRequestAllowed},
         {meas: 'adg-logs-request-blocked', values: logsRequestBlocked},
         {meas: 'adg-logs-source', values: logsSource},
         {meas: 'adg-logs-status', values: logsStatus},
+        {meas: 'adg-logs-timeline', values: logsTimeline},
         {meas: 'adg-logs-type', values: logsType},
     ]);
 };
