@@ -19,8 +19,10 @@ export default async ({name, period = '—', task}) => {
             const time = Date.now();
             await task();
 
-            const duration = Date.now() - time;
-            return await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
+            if (env.cloud.is) {
+                const duration = Date.now() - time;
+                return await influx.write({meas: 'cloud-crons-time', values: {[name]: duration}});
+            }
         } catch (err) {
             if (i === tries) {
                 print.ex(err, {
@@ -37,7 +39,7 @@ export default async ({name, period = '—', task}) => {
         }
     }
 
-    if (env.influx.request) {
+    if (env.cloud.is) {
         try {
             await influx.write({meas: 'cloud-crons-errors', values: {[name]: errCount}});
         } catch (err_) {

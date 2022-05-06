@@ -6,35 +6,46 @@ import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import {renameIsp} from '../lib/utils.js';
-
-const getFileUrl = file => new URL(`../../.adg/${file}`, import.meta.url).pathname;
-
 const getCacheFileAbsPath = file => {
-    const pathname = getFileUrl(file);
+    const {pathname} = new URL(`../../.adg/${file}`, import.meta.url);
     return {pathname, dirname: path.dirname(pathname)};
 };
 
 const getCountryWithFlag = country => `${countries.alpha2ToAlpha3(country)} ${emoji(country)}`;
 
+const renameIsp = isp => {
+    const replaces = [
+        ['CLOUDFLARENET', 'Cloudflare'],
+        ['Net By Net Holding LLC', 'NBN'],
+        ['PJSC MegaFon', 'Megafon'],
+        ['PVimpelCom', 'Beeline'],
+        ['YANDEX LLC', 'Yandex'],
+        ['Yandex.Cloud LLC', 'Yandex Cloud'],
+    ];
+
+    for (const [from, to] of replaces) {
+        if (isp === from) {
+            return to;
+        }
+    }
+
+    return isp;
+};
+
 /** */
 export default async () => {
-    const timestampFile = '.timestamp';
-    const timeTo = Date.now();
     // 24h
+    const timeTo = Date.now();
     const timeFrom = timeTo - 86_400_000;
-    const timeParams = `time_from_millis=${timeFrom}&time_to_millis=${timeTo}`;
+
+    const {dirname: cacheDir, pathname: timestampPath} = getCacheFileAbsPath('.timestamp');
+    await fs.mkdir(cacheDir, {recursive: true});
 
     const [
         account,
         devices,
         dnsServers,
         filters,
-
-        statsCompanies,
-        statsCountries,
-        statsDashboard,
-        statsGeneral,
 
         logs,
     ] = await Promise.all([
@@ -43,12 +54,7 @@ export default async () => {
         'dns_servers',
         'filters',
 
-        `stats/companies_filter?${timeParams}`,
-        `stats/countries_filter?${timeParams}`,
-        `stats/dashboard?${timeParams}`,
-        `stats/general?${timeParams}`,
-
-        `query_log?${timeParams}&limit=100`,
+        `query_log?time_from_millis=${timeFrom}&time_to_millis=${timeTo}&limit=100`,
     ].map(elem => adg.get(elem)));
 
     /**
@@ -63,62 +69,43 @@ export default async () => {
     /**
      * Data from common handlers
      */
-    const limitsValues = {...account.license.account_limits, ...account.license.request_limits};
+    const statsAccountLimits = {...account.license.account_limits, ...account.license.request_limits};
 
-    const filtersValues = Object.fromEntries(filters
+    const statsFilterDomains = Object.fromEntries(filters
         .filter(({filter_id}) => enabledFilters[filter_id])
         .map(({filter_id, rules_count}) => [filter_id, rules_count]));
 
-    const filtersCountValues = {used: Object.keys(filtersValues).length, all: filters.length};
-
-    const categoriesValues = Object.fromEntries(statsGeneral.category_types_stats.stats
-        .filter(({category_type}) => category_type !== 'OTHERS')
-        .map(({category_type, queries}) => [category_type, queries]));
-
-    const domainsValues = Object.fromEntries(statsGeneral.domains_stats.stats
-        .map(({domain, value}) => [domain, value.queries]));
-
-    /**
-     * Data from stats handler
-     */
-    const statsClientsValues = Object.fromEntries(statsDashboard.dns_servers_stats.values[0].devices_stats
-        .map(({device_id, stats}) => [deviceIdToName[device_id], stats.queries]));
-
-    const statsCompaniesValues = Object.fromEntries(statsCompanies
-        .filter(({queries}) => queries)
-        .map(({company, queries}) => [company.company_name, queries]));
-
-    const statsCountriesValues = Object.fromEntries(statsCountries
-        .filter(({country_code, queries}) => queries && country_code !== 'UNKNOWN_COUNTRY')
-        .map(({country_code, queries}) => [getCountryWithFlag(country_code), queries]));
-
-    const statsQueriesValues = statsGeneral.time_stats.combined_stats.overall;
+    const statsFilterCounts = {used: Object.keys(statsFilterDomains).length, all: filters.length};
 
     /**
      * Data from queries logs
      */
-    const logsCodeValues = {};
-    const logsDnssecValues = {};
-    const logsFilterValues = {};
-    const logsNetworkValues = {};
-    const logsProtoValues = {};
-    const logsSourceValues = {};
-    const logsStatusValues = {};
-    const logsTldValues = {};
-    const logsTypeValues = {};
-    const logsCountriesValues = {};
-    const logsBlockedDomainsValues = {};
-    const logsAllowedDomainsValues = {};
-    const logsResponseNameErrorValues = {};
+    const logsCategory = {};
+    const logsCode = {};
+    const logsCompany = {};
+    const logsCountryClient = {};
+    const logsCountryServer = {};
+    const logsDevice = {};
+    const logsDnssec = {};
+    const logsDomainBase = {};
+    const logsDomainError = {};
+    const logsDomainTld = {};
+    const logsFilter = {};
+    const logsNetwork = {};
+    const logsProto = {};
+    const logsRequestAllowed = {};
+    const logsRequestBlocked = {};
+    const logsSource = {};
+    const logsStatus = {};
+    const logsType = {};
 
     const cacheDevices = new Set();
 
     let logsElementLastTimestamp = 0;
 
     try {
-        logsElementLastTimestamp = Number(
-            await fs.readFile(getFileUrl(timestampFile), {encoding: 'utf8'}),
-        );
+        const timestampString = await fs.readFile(timestampPath, {encoding: 'utf8'});
+        logsElementLastTimestamp = Number(timestampString);
     } catch {}
 
     for (const item of logs.items) {
@@ -126,44 +113,61 @@ export default async () => {
             break;
         }
 
+        const deviceName = deviceIdToName[item.device_id];
         const isp = renameIsp(item.response.ip_info.network);
-        const tld = item.request.domain.split('.').pop().toLowerCase();
+        const deviceIsp = `${deviceName} :: ${isp}`;
 
-        object.count(logsCodeValues, item.response.dns_response_type);
-        object.count(logsCountriesValues, getCountryWithFlag(item.response.ip_info.client_country));
-        object.count(logsDnssecValues, item.request.dnssec);
-        object.count(logsNetworkValues, isp);
-        object.count(logsProtoValues, item.request.dns_proto_type);
-        object.count(logsTypeValues, item.request.dns_request_type);
+        const domainSplitted = item.request.domain.split('.');
+        const tld = domainSplitted.at(-1).toLowerCase();
+        const baseDomain = domainSplitted.slice(-2).join('.').toLowerCase();
 
-        TLDs.includes(tld)
-            && object.count(logsTldValues, tld);
+        cacheDevices.add(JSON.stringify({device: deviceName, withIsp: deviceIsp}));
 
-        item.response.filter_id
-            && object.count(logsFilterValues, item.response.filter_id);
+        item.request.category_type !== 'OTHERS'
+            && object.count(logsCategory, item.request.category_type);
+
+        item.request.company_name
+            && object.count(logsCompany, item.request.company_name);
+
+        item.response.action_source
+            && object.count(logsSource, item.response.action_source);
 
         item.response.action_status !== 'NONE'
-            && object.count(logsStatusValues, item.response.action_status);
-
-        item.response.action_status === 'REQUEST_BLOCKED'
-            && object.count(logsBlockedDomainsValues, item.request.domain);
+            && object.count(logsStatus, item.response.action_status);
 
         item.response.action_status === 'REQUEST_ALLOWED'
             && !item.request.domain.endsWith('-dnsotls-ds.metric.gstatic.com')
-            && object.count(logsAllowedDomainsValues, item.request.domain);
+            && object.count(logsRequestAllowed, item.request.domain);
 
-        item.response.action_source
-            && object.count(logsSourceValues, item.response.action_source);
+        item.response.action_status === 'REQUEST_BLOCKED'
+            && object.count(logsRequestBlocked, item.request.domain);
 
         item.response.dns_response_type === 'RcodeNameError'
-            && object.count(logsResponseNameErrorValues, item.request.domain);
+            && object.count(logsDomainError, item.request.domain);
 
-        const deviceName = deviceIdToName[item.device_id];
-        const deviceIsp = `${deviceName} :: ${isp}`;
-        cacheDevices.add(JSON.stringify({device: deviceName, withIsp: deviceIsp}));
+        item.response.filter_id
+            && object.count(logsFilter, item.response.filter_id);
+
+        item.response.ip_info.client_country
+            && item.response.ip_info.client_country !== 'UNKNOWN_COUNTRY'
+            && object.count(logsCountryClient, getCountryWithFlag(item.response.ip_info.client_country));
+
+        item.response.ip_info.response_country
+            && item.response.ip_info.response_country !== 'UNKNOWN_COUNTRY'
+            && object.count(logsCountryServer, getCountryWithFlag(item.response.ip_info.response_country));
+
+        object.count(logsCode, item.response.dns_response_type);
+        object.count(logsDevice, deviceName);
+        object.count(logsDnssec, item.request.dnssec);
+        object.count(logsDomainBase, baseDomain);
+        object.count(logsNetwork, isp);
+        object.count(logsProto, item.request.dns_proto_type);
+        object.count(logsType, item.request.dns_request_type);
+
+        TLDs.includes(tld) && object.count(logsDomainTld, tld);
     }
 
-    await fs.writeFile(getFileUrl(timestampFile), String(logs.items[0].time_millis));
+    await fs.writeFile(timestampPath, String(logs.items[0].time_millis));
 
     /**
      * Data for online graph
@@ -171,21 +175,15 @@ export default async () => {
     const logsOnlineValues = {};
 
     for (const cached of cacheDevices) {
-        const {device, withIsp} = JSON.parse(cached);
-        const cacheDir = getCacheFileAbsPath().dirname;
+        const cachedData = await fs.readdir(cacheDir);
 
+        const {device, withIsp} = JSON.parse(cached);
         const parsedCacheDevices = [];
 
-        try {
-            const cachedData = await fs.readdir(cacheDir);
-
-            parsedCacheDevices.push(...cachedData.map(data => {
-                const [name, index] = data.split('_');
-                return [name, Number(index)];
-            }));
-        } catch {
-            await fs.mkdir(cacheDir, {recursive: true});
-        }
+        parsedCacheDevices.push(...cachedData.map(data => {
+            const [name, index] = data.split('_');
+            return [name, Number(index)];
+        }));
 
         const found = parsedCacheDevices.find(([name]) => name === device);
 
@@ -204,30 +202,28 @@ export default async () => {
     }
 
     await influx.write([
-        {meas: 'adg-categories', values: categoriesValues},
-        {meas: 'adg-domains', values: domainsValues},
-        {meas: 'adg-filters', values: filtersValues},
-        {meas: 'adg-filters-count', values: filtersCountValues},
-        {meas: 'adg-limits', values: limitsValues},
+        {meas: 'adg-stats-filter-domains', values: statsFilterDomains},
+        {meas: 'adg-stats-filter-counts', values: statsFilterCounts},
+        {meas: 'adg-stats-account-limits', values: statsAccountLimits},
 
-        {meas: 'adg-stats-clients', values: statsClientsValues},
-        {meas: 'adg-stats-companies', values: statsCompaniesValues},
-        {meas: 'adg-stats-countries', values: statsCountriesValues},
-        {meas: 'adg-stats-queries', values: statsQueriesValues},
-
-        {meas: 'adg-logs-allowed-domains', values: logsAllowedDomainsValues},
-        {meas: 'adg-logs-blocked-domains', values: logsBlockedDomainsValues},
-        {meas: 'adg-logs-code', values: logsCodeValues},
-        {meas: 'adg-logs-country', values: logsCountriesValues},
-        {meas: 'adg-logs-dnssec', values: logsDnssecValues},
-        {meas: 'adg-logs-filter', values: logsFilterValues},
-        {meas: 'adg-logs-network', values: logsNetworkValues},
+        {meas: 'adg-logs-category', values: logsCategory},
+        {meas: 'adg-logs-code', values: logsCode},
+        {meas: 'adg-logs-company', values: logsCompany},
+        {meas: 'adg-logs-country-client', values: logsCountryClient},
+        {meas: 'adg-logs-country-server', values: logsCountryServer},
+        {meas: 'adg-logs-device', values: logsDevice},
+        {meas: 'adg-logs-dnssec', values: logsDnssec},
+        {meas: 'adg-logs-domain-base', values: logsDomainBase},
+        {meas: 'adg-logs-domain-error', values: logsDomainError},
+        {meas: 'adg-logs-domain-tld', values: logsDomainTld},
+        {meas: 'adg-logs-filter', values: logsFilter},
+        {meas: 'adg-logs-network', values: logsNetwork},
         {meas: 'adg-logs-online', values: logsOnlineValues},
-        {meas: 'adg-logs-proto', values: logsProtoValues},
-        {meas: 'adg-logs-response-name-error-domains', values: logsResponseNameErrorValues},
-        {meas: 'adg-logs-source', values: logsSourceValues},
-        {meas: 'adg-logs-status', values: logsStatusValues},
-        {meas: 'adg-logs-tld', values: logsTldValues},
-        {meas: 'adg-logs-type', values: logsTypeValues},
+        {meas: 'adg-logs-proto', values: logsProto},
+        {meas: 'adg-logs-request-allowed', values: logsRequestAllowed},
+        {meas: 'adg-logs-request-blocked', values: logsRequestBlocked},
+        {meas: 'adg-logs-source', values: logsSource},
+        {meas: 'adg-logs-status', values: logsStatus},
+        {meas: 'adg-logs-type', values: logsType},
     ]);
 };
