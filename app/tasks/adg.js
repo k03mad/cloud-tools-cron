@@ -89,6 +89,7 @@ export default async () => {
     const logsDnssec = {};
     const logsDomainBase = {};
     const logsDomainError = {};
+    const logsDomainFull = {};
     const logsDomainTld = {};
     const logsFilter = {};
     const logsIsp = {};
@@ -160,6 +161,7 @@ export default async () => {
         object.count(logsDevice, deviceName);
         object.count(logsDnssec, item.request.dnssec);
         object.count(logsDomainBase, baseDomain);
+        object.count(logsDomainFull, item.request.domain);
         object.count(logsIsp, isp);
         object.count(logsProto, item.request.dns_proto_type);
         object.count(logsType, item.request.dns_request_type);
@@ -215,6 +217,7 @@ export default async () => {
         {meas: 'adg-logs-dnssec', values: logsDnssec},
         {meas: 'adg-logs-domain-base', values: logsDomainBase},
         {meas: 'adg-logs-domain-error', values: logsDomainError},
+        {meas: 'adg-logs-domain-full', values: logsDomainFull},
         {meas: 'adg-logs-domain-tld', values: logsDomainTld},
         {meas: 'adg-logs-filter', values: logsFilter},
         {meas: 'adg-logs-isp', values: logsIsp},
