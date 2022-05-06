@@ -126,8 +126,8 @@ export default async () => {
         item.request.category_type !== 'OTHERS'
             && object.count(logsCategory, item.request.category_type);
 
-        item.request.company_name
-            && object.count(logsCompany, item.request.company_name);
+        item.request.company.company_name
+            && object.count(logsCompany, item.request.company.company_name);
 
         item.response.action_source
             && object.count(logsSource, item.response.action_source);
