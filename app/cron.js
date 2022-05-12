@@ -16,7 +16,7 @@ const minuteTasks = [
     'cloud',
     'f2b',
     'influx',
-    'mikrotik',
+    // 'mikrotik',
     'node',
     'pinger',
     'ufw',
