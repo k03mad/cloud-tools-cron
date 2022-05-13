@@ -46,6 +46,7 @@ export default async () => {
         addressList,
         firewallConnections,
         firewallFilter,
+        firewallMangle,
         firewallNat,
         firewallRaw,
         [updates],
@@ -60,6 +61,7 @@ export default async () => {
         '/ip/firewall/address-list/print',
         '/ip/firewall/connection/print',
         '/ip/firewall/filter/print',
+        '/ip/firewall/mangle/print',
         '/ip/firewall/nat/print',
         '/ip/firewall/raw/print',
         '/system/package/update/print',
@@ -74,10 +76,12 @@ export default async () => {
         })),
     );
 
+    const mangleTraffic = {};
     const natTraffic = {};
     const filterTraffic = {};
     const rawTraffic = {};
 
+    fillFirewallData(firewallMangle, mangleTraffic);
     fillFirewallData(firewallNat, natTraffic);
     fillFirewallData(firewallFilter, filterTraffic);
     fillFirewallData(firewallRaw, rawTraffic);
@@ -242,6 +246,7 @@ export default async () => {
             {meas: 'mikrotik-connections-traffic', values: connectionsDomains},
             {meas: 'mikrotik-filter-traffic', values: filterTraffic},
             {meas: 'mikrotik-interfaces-traffic', values: interfacesTraffic},
+            {meas: 'mikrotik-mangle-traffic', values: mangleTraffic},
             {meas: 'mikrotik-nat-traffic', values: natTraffic},
             {meas: 'mikrotik-raw-traffic', values: rawTraffic},
             {meas: 'mikrotik-wireguard-traffic', values: wireguardTraffic},
