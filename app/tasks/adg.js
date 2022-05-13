@@ -27,7 +27,7 @@ const renameIsp = isp => {
 
     replaces.forEach(elem => {
         const [from, to = ''] = array.convert(elem);
-        isp.replace(from, to);
+        isp = isp.replace(from, to);
     });
 
     return isp.trim();
