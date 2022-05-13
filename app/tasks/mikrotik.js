@@ -1,6 +1,4 @@
-import {array, influx, ip, mikrotik, object, re, string} from '@k03mad/util';
-import fs from 'node:fs/promises';
-import path from 'node:path';
+import {array, influx, ip, mikrotik, object, re} from '@k03mad/util';
 import oui from 'oui';
 
 const fillFirewallData = (data, fill) => {
@@ -19,13 +17,6 @@ const fillFirewallData = (data, fill) => {
             }
         }
     });
-};
-
-const getFileUrl = file => new URL(`../../.mikrotik/${file}`, import.meta.url).pathname;
-
-const getCacheFileAbsPath = file => {
-    const pathname = getFileUrl(file);
-    return {pathname, dirname: path.dirname(pathname)};
 };
 
 /** */
@@ -181,7 +172,6 @@ export default async () => {
     const addressListsCount = array.count(addressList.map(elem => elem.list));
 
     const dnsCacheTypes = {};
-    const dnsUnblocked = [];
 
     dnsCache.forEach(elem => {
         if (!elem.type || elem.type.includes('unknown')) {
@@ -189,45 +179,7 @@ export default async () => {
         }
 
         object.count(dnsCacheTypes, elem.type);
-
-        if (elem.data?.startsWith('10.')) {
-            dnsUnblocked.push(elem.name);
-        }
     });
-
-    const dnsUnblockedDomains = {};
-
-    for (const domain of dnsUnblocked) {
-        const cacheDir = getCacheFileAbsPath().dirname;
-
-        const cacheDomains = [];
-
-        try {
-            const cachedData = await fs.readdir(cacheDir);
-
-            cacheDomains.push(...cachedData.map(data => {
-                const [name, index] = data.split('_');
-                return [name, Number(index)];
-            }));
-        } catch {
-            await fs.mkdir(cacheDir, {recursive: true});
-        }
-
-        const found = cacheDomains.find(([name]) => name === domain);
-
-        if (found) {
-            [, dnsUnblockedDomains[domain]] = found;
-        } else {
-            let i = 1;
-
-            while (new Set(cacheDomains.map(([, index]) => index)).has(i)) {
-                i++;
-            }
-
-            await fs.writeFile(getCacheFileAbsPath(`${string.filenamify(domain)}_${i}`).pathname, '');
-            dnsUnblockedDomains[domain] = i;
-        }
-    }
 
     await Promise.all([
         influx.write([
@@ -235,7 +187,6 @@ export default async () => {
             {meas: 'mikrotik-clients-signal', values: clientsSignal},
             {meas: 'mikrotik-connections-protocols', values: connectionsProtocols},
             {meas: 'mikrotik-dns-cache', values: dnsCacheTypes},
-            {meas: 'mikrotik-dns-unblocked', values: dnsUnblockedDomains},
             {meas: 'mikrotik-interfaces-speed', values: interfacesSpeed},
             {meas: 'mikrotik-scripts-run', values: {...scriptsRun, ...schedulerRun}},
             {meas: 'mikrotik-usage', values: health},
