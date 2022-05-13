@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import {adg, influx, object} from '@k03mad/util';
+import {adg, array, influx, object} from '@k03mad/util';
 import emoji from 'country-code-emoji';
 import {TLDs} from 'global-tld-list';
 import countries from 'i18n-iso-countries';
@@ -16,20 +16,21 @@ const getCountryWithFlag = country => `${countries.alpha2ToAlpha3(country)} ${em
 const renameIsp = isp => {
     const replaces = [
         ['CLOUDFLARENET', 'Cloudflare'],
-        ['Net By Net Holding LLC', 'NBN'],
-        ['PJSC MegaFon', 'Megafon'],
+        ['Net By Net Holding', 'NBN'],
         ['PVimpelCom', 'Beeline'],
-        ['YANDEX LLC', 'Yandex'],
-        ['Yandex.Cloud LLC', 'Yandex Cloud'],
+        ['YANDEX', 'Yandex'],
+
+        / llc$/i,
+        / ltd$/i,
+        /^pjsc /i,
     ];
 
-    for (const [from, to] of replaces) {
-        if (isp === from) {
-            return to;
-        }
-    }
+    replaces.forEach(elem => {
+        const [from, to = ''] = array.convert(elem);
+        isp.replace(from, to);
+    });
 
-    return isp;
+    return isp.trim();
 };
 
 /** */
