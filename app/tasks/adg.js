@@ -4,12 +4,8 @@ import emoji from 'country-code-emoji';
 import {TLDs} from 'global-tld-list';
 import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
-import path from 'node:path';
 
-const getCacheFileAbsPath = file => {
-    const {pathname} = new URL(`../../.adg/${file}`, import.meta.url);
-    return {pathname, dirname: path.dirname(pathname)};
-};
+import {getCacheFileAbsPath} from '../lib/utils.js';
 
 const getCountryWithFlag = country => `${countries.alpha2ToAlpha3(country)} ${emoji(country)}`;
 
@@ -35,11 +31,14 @@ const renameIsp = isp => {
 
 /** */
 export default async () => {
+    const CACHE_FOLDER = '.adg';
+    const TIMESTAMP_FILE = '.timestamp';
+
     // 24h
     const timeTo = Date.now();
     const timeFrom = timeTo - 86_400_000;
 
-    const {dirname: cacheDir, pathname: timestampPath} = getCacheFileAbsPath('.timestamp');
+    const {dirname: cacheDir, pathname: timestampPath} = getCacheFileAbsPath(CACHE_FOLDER, TIMESTAMP_FILE);
     await fs.mkdir(cacheDir, {recursive: true});
 
     const [
@@ -197,7 +196,11 @@ export default async () => {
                 i++;
             }
 
-            await fs.writeFile(getCacheFileAbsPath(`${device}_${i}`).pathname, '');
+            await fs.writeFile(
+                getCacheFileAbsPath(CACHE_FOLDER, `${device}_${i}`).pathname,
+                '',
+            );
+
             logsTimeline[withIsp] = i;
         }
     }

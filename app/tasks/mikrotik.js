@@ -2,8 +2,9 @@ import {array, influx, ip, mikrotik, object, re, string} from '@k03mad/util';
 import {Netmask} from 'netmask';
 import fs from 'node:fs/promises';
 import net from 'node:net';
-import path from 'node:path';
 import oui from 'oui';
+
+import {getCacheFileAbsPath} from '../lib/utils.js';
 
 const fillFirewallData = (data, fill) => {
     let lastComment;
@@ -26,19 +27,13 @@ const fillFirewallData = (data, fill) => {
     });
 };
 
-const getFileUrl = file => new URL(`../../.mikrotik/${file}`, import.meta.url).pathname;
-
-const getCacheFileAbsPath = file => {
-    const pathname = getFileUrl(file);
-    return {pathname, dirname: path.dirname(pathname)};
-};
-
 /** */
 export default async () => {
     const SEPARATOR = ' :: ';
+    const CACHE_FOLDER = '.mikrotik';
 
     // 1 MB
-    const connectionsMinBytes = 1_048_576;
+    const CONNECTIONS_MIN_BYTES = 1_048_576;
 
     const [usage] = await mikrotik.post('/system/resource/print');
 
@@ -149,7 +144,7 @@ export default async () => {
         ) {
             const bytes = Number(elem['orig-bytes']) + Number(elem['repl-bytes']);
 
-            if (bytes > connectionsMinBytes) {
+            if (bytes > CONNECTIONS_MIN_BYTES) {
                 try {
                     const {hostname} = await ip.info(dstAddress);
 
@@ -223,7 +218,7 @@ export default async () => {
     const domainsUnblocked = {};
 
     for (const domain of domainsToWarpInDns) {
-        const cacheDir = getCacheFileAbsPath().dirname;
+        const cacheDir = getCacheFileAbsPath(CACHE_FOLDER).dirname;
 
         const cacheDomains = [];
 
@@ -249,7 +244,11 @@ export default async () => {
                 i++;
             }
 
-            await fs.writeFile(getCacheFileAbsPath(`${string.filenamify(domain)}_${i}`).pathname, '');
+            await fs.writeFile(
+                getCacheFileAbsPath(CACHE_FOLDER, `${string.filenamify(domain)}_${i}`).pathname,
+                '',
+            );
+
             domainsUnblocked[domain] = i;
         }
     }
