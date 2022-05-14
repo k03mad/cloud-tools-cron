@@ -8,12 +8,15 @@ import oui from 'oui';
 const fillFirewallData = (data, fill) => {
     let lastComment;
 
-    data.forEach(({bytes, comment}) => {
+    data.forEach(({bytes, comment, disabled = 'false'}) => {
         comment
             ? lastComment = comment
             : comment = lastComment;
 
-        if (!comment.includes('dummy rule')) {
+        if (
+            disabled === 'false'
+            && !comment.includes('dummy rule')
+        ) {
             if (fill[comment]) {
                 fill[comment] += Number(bytes);
             } else {
@@ -71,8 +74,10 @@ export default async () => {
         '/system/script/print',
     ].map(elem => mikrotik.post(elem)));
 
+    const interfacesEnabled = interfaces.filter(({disabled}) => disabled === 'false');
+
     const monitorTraffic = await Promise.all(
-        interfaces.map(({name}) => mikrotik.post('interface/monitor-traffic', {
+        interfacesEnabled.map(({name}) => mikrotik.post('interface/monitor-traffic', {
             interface: name,
             once: true,
         })),
@@ -96,7 +101,7 @@ export default async () => {
         interfacesSpeed[obj.name] = Number(obj['rx-bits-per-second']) + Number(obj['tx-bits-per-second']);
     });
 
-    interfaces.forEach(elem => {
+    interfacesEnabled.forEach(elem => {
         interfacesTraffic[elem.name] = Number(elem['rx-byte']) + Number(elem['tx-byte']);
     });
 
