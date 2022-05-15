@@ -13,7 +13,7 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/util": "10.0.0",
+    "@k03mad/util": "10.0.1",
     "chalk": "5.0.1",
     "country-code-emoji": "2.3.0",
     "global-tld-list": "0.0.738",
