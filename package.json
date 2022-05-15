@@ -13,10 +13,10 @@
     "node": ">=17"
   },
   "dependencies": {
-    "@k03mad/util": "9.0.2",
+    "@k03mad/util": "10.0.0",
     "chalk": "5.0.1",
     "country-code-emoji": "2.3.0",
-    "global-tld-list": "0.0.737",
+    "global-tld-list": "0.0.738",
     "globby": "13.1.1",
     "hasha": "5.2.2",
     "i18n-iso-countries": "7.4.0",
