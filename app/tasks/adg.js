@@ -16,7 +16,7 @@ const renameIsp = isp => {
         ['PVimpelCom', 'Beeline'],
         ['YANDEX', 'Yandex'],
 
-        / (llc|ltd)$/i,
+        / (llc|ltd|gmbh)$/i,
         /^(c|p)?jsc /i,
     ];
 
