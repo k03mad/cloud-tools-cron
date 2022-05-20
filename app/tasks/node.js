@@ -40,7 +40,6 @@ export default async () => {
             }
 
             return {meas: 'node-req-responses-ok', ...data};
-
         } catch {
             return null;
         }
