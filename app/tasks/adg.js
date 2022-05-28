@@ -1,7 +1,6 @@
 /* eslint-disable camelcase */
 import {adg, array, influx, object} from '@k03mad/util';
 import emoji from 'country-code-emoji';
-import {TLDs} from 'global-tld-list';
 import countries from 'i18n-iso-countries';
 import fs from 'node:fs/promises';
 
@@ -81,14 +80,11 @@ export default async () => {
      */
     const logsCategory = {};
     const logsCode = {};
-    const logsCompany = {};
     const logsCountryClient = {};
     const logsCountryServer = {};
     const logsDevice = {};
     const logsDnssec = {};
     const logsDomainBase = {};
-    const logsDomainError = {};
-    const logsDomainTld = {};
     const logsFilter = {};
     const logsIsp = {};
     const logsProto = {};
@@ -117,16 +113,12 @@ export default async () => {
         const deviceIsp = `${deviceName} :: ${isp}`;
 
         const domainSplitted = item.request.domain.split('.');
-        const tld = domainSplitted.at(-1).toLowerCase();
         const baseDomain = domainSplitted.slice(-2).join('.').toLowerCase();
 
         cacheDevices.add(JSON.stringify({device: deviceName, withIsp: deviceIsp}));
 
         item.request.category_type !== 'OTHERS'
             && object.count(logsCategory, item.request.category_type);
-
-        item.request.company.company_name
-            && object.count(logsCompany, item.request.company.company_name);
 
         item.response.action_source
             && object.count(logsSource, item.response.action_source);
@@ -140,9 +132,6 @@ export default async () => {
 
         item.response.action_status === 'REQUEST_BLOCKED'
             && object.count(logsRequestBlocked, item.request.domain);
-
-        item.response.dns_response_type === 'RcodeNameError'
-            && object.count(logsDomainError, item.request.domain);
 
         item.response.filter_id
             && object.count(logsFilter, item.response.filter_id);
@@ -162,8 +151,6 @@ export default async () => {
         object.count(logsIsp, isp);
         object.count(logsProto, item.request.dns_proto_type);
         object.count(logsType, item.request.dns_request_type);
-
-        TLDs.includes(tld) && object.count(logsDomainTld, tld);
     }
 
     await fs.writeFile(timestampPath, String(logs.items[0].time_millis));
@@ -211,14 +198,11 @@ export default async () => {
 
         {meas: 'adg-logs-category', values: logsCategory},
         {meas: 'adg-logs-code', values: logsCode},
-        {meas: 'adg-logs-company', values: logsCompany},
         {meas: 'adg-logs-country-client', values: logsCountryClient},
         {meas: 'adg-logs-country-server', values: logsCountryServer},
         {meas: 'adg-logs-device', values: logsDevice},
         {meas: 'adg-logs-dnssec', values: logsDnssec},
         {meas: 'adg-logs-domain-base', values: logsDomainBase},
-        {meas: 'adg-logs-domain-error', values: logsDomainError},
-        {meas: 'adg-logs-domain-tld', values: logsDomainTld},
         {meas: 'adg-logs-filter', values: logsFilter},
         {meas: 'adg-logs-isp', values: logsIsp},
         {meas: 'adg-logs-proto', values: logsProto},
