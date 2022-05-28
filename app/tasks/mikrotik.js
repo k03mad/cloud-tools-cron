@@ -199,17 +199,16 @@ export default async () => {
             entry.data !== '0.0.0.0'
             && net.isIPv4(entry.data)
         ) {
-            for (const elem of addressList) {
+            for (const {address, list} of addressList) {
+                const isWarpList = list === 'towarp';
+                const isIpEqual = address === entry.data;
+                const isIpInMask = address.includes('/') && new Netmask(address).contains(entry.data);
+
                 if (
-                    elem.list === 'towarp'
+                    isWarpList
+                    && (isIpEqual || isIpInMask)
                 ) {
-                    if (elem.address.includes('/')) {
-                        if (new Netmask(elem.address).contains(entry.data)) {
-                            domainsToWarpInDns.add(entry.name);
-                        }
-                    } else if (elem.address === entry.data) {
-                        domainsToWarpInDns.add(entry.name);
-                    }
+                    domainsToWarpInDns.add(entry.name.toLowerCase());
                 }
             }
         }
@@ -236,7 +235,7 @@ export default async () => {
         const found = cacheDomains.find(([name]) => name === domain);
 
         if (found) {
-            [, domainsUnblocked[domain]] = found;
+            domainsUnblocked[domain] = found[1];
         } else {
             let i = 1;
 
