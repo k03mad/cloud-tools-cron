@@ -16,7 +16,7 @@ export default async () => {
 
     const re = {
         load: /load average(s)?: (\d[,.]\d\d)/,
-        disk: /\/dev\/vda2 +\d+ +(?<used>\d+) +(?<available>\d+)/,
+        disk: /\/dev\/vda2 +(?<total>\d+) +(?<used>\d+) +(?<available>\d+)/,
         mem: /Mem: +(?<total>\d+) +(?<used>\d+) +(?<free>\d+) +(?<shared>\d+) +(?<buff>\d+) +(?<available>\d+)/,
         ports: {
             listen: /^(?<name>\S+)\s.+:(?<port>\d+) \(LISTEN\)/,
